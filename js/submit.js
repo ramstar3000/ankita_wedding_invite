@@ -22,6 +22,9 @@
     return {
       submittedAt: s.submittedAt || new Date().toISOString(),
       name: s.name,
+      side: s.side,                                                  // "bride" | "groom" | null
+      partySize: s.partySize || 1,
+      partyNames: (s.partyNames || []).filter(function (n) { return n && n.length; }),
       attending: s.attending,
       scope: s.scope,
       attendingEvents,
@@ -32,10 +35,18 @@
   }
 
   function asText(payload) {
+    const sideLabel = payload.side === "bride" ? "Bride's side"
+                    : payload.side === "groom" ? "Groom's side"
+                    : "—";
     const lines = [
       `Name: ${payload.name || "(not provided)"}`,
-      `Attending: ${payload.attending === true ? "Yes" : payload.attending === false ? "No" : "—"}`,
+      `Side: ${sideLabel}`,
+      `Party size: ${payload.partySize}`,
     ];
+    if (payload.partyNames && payload.partyNames.length) {
+      lines.push(`Others joining: ${payload.partyNames.join(", ")}`);
+    }
+    lines.push(`Attending: ${payload.attending === true ? "Yes" : payload.attending === false ? "No" : "—"}`);
     if (payload.attending) {
       lines.push(`Scope: ${payload.scope || "—"}`);
       if (payload.attendingEvents.length) {

@@ -25,6 +25,8 @@
  *   The /exec URL stays the same.
  */
 
+// Append-only column order. New fields go at the end so existing rows stay
+// aligned when the script is re-deployed onto a Sheet with older data.
 const HEADERS = [
   'submittedAt',
   'name',
@@ -34,7 +36,10 @@ const HEADERS = [
   'foodChoices',
   'accommodation',
   'notes',
-  'rawPayload'
+  'rawPayload',
+  'side',
+  'partySize',
+  'partyNames'
 ];
 
 function doPost(e) {
@@ -56,10 +61,11 @@ function doPost(e) {
 function handleSubmit(body) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow(HEADERS);
-    sheet.setFrozenRows(1);
-  }
+  ensureHeaders(sheet);
+
+  const sideLabel = body.side === 'bride' ? "Bride's side"
+                  : body.side === 'groom' ? "Groom's side"
+                  : '';
 
   sheet.appendRow([
     body.submittedAt || new Date().toISOString(),
@@ -72,10 +78,33 @@ function handleSubmit(body) {
       : '',
     body.accommodation || '',
     body.notes || '',
-    JSON.stringify(body)
+    JSON.stringify(body),
+    sideLabel,
+    body.partySize || 1,
+    Array.isArray(body.partyNames) ? body.partyNames.join(', ') : ''
   ]);
 
   return jsonOut({ ok: true });
+}
+
+// Idempotently extends the header row to match HEADERS. Existing column
+// labels are preserved (so manual renames stick), only empty cells get filled.
+function ensureHeaders(sheet) {
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(HEADERS);
+    sheet.setFrozenRows(1);
+    return;
+  }
+  const range = sheet.getRange(1, 1, 1, HEADERS.length);
+  const existing = range.getValues()[0];
+  let changed = false;
+  for (let i = 0; i < HEADERS.length; i++) {
+    if (!existing[i]) { existing[i] = HEADERS[i]; changed = true; }
+  }
+  if (changed) {
+    range.setValues([existing]);
+    sheet.setFrozenRows(1);
+  }
 }
 
 function handleResults(submittedPassword) {

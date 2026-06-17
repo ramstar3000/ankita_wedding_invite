@@ -197,6 +197,23 @@ p { margin: 8px 0 16px; }
   outline-offset: 1px;
 }
 
+/* ---- Side toggle -------------------------------------------------------- */
+
+.toggle-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+.toggle-row .side-btn {
+  flex: 1 1 0;
+  padding: 10px 12px;
+}
+.side-btn.is-active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
 /* ---- Choice lists ------------------------------------------------------- */
 
 .choice-list {

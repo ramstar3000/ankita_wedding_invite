@@ -6,6 +6,9 @@
 
   const DEFAULTS = {
     name: "",
+    side: null,             // "bride" | "groom" | null
+    partySize: 1,           // total people incl. the lead guest
+    partyNames: [],         // names of the additional people (length = partySize - 1)
     attending: null,        // true | false | null
     scope: null,            // "whole" | "part" | null
     selectedEventIds: [],   // string[]

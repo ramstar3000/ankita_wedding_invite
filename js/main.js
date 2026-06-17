@@ -22,12 +22,77 @@
     } else {
       mapLink.hidden = true;
     }
+
+    const invitationLink = $("#cover-invitation-link");
+    if (cfg.invitationPdf) {
+      invitationLink.href = cfg.invitationPdf;
+      invitationLink.hidden = false;
+    } else {
+      invitationLink.hidden = true;
+    }
+  }
+
+  function renderPartyNameInputs() {
+    const wrap = $("#rsvp-party-names");
+    const list = $("#rsvp-party-names-list");
+    const extraCount = Math.max(0, (state.partySize || 1) - 1);
+
+    if (extraCount === 0) {
+      wrap.hidden = true;
+      list.innerHTML = "";
+      return;
+    }
+
+    wrap.hidden = false;
+    list.innerHTML = "";
+    for (let i = 0; i < extraCount; i++) {
+      const field = document.createElement("label");
+      field.className = "field";
+      field.innerHTML = `
+        <span>Guest ${i + 2}</span>
+        <input type="text" class="party-name-input" data-index="${i}"
+               value="${(state.partyNames[i] || "").replace(/"/g, "&quot;")}"
+               placeholder="Name" />
+      `;
+      const input = field.querySelector("input");
+      input.addEventListener("input", () => {
+        const next = state.partyNames.slice();
+        while (next.length < extraCount) next.push("");
+        next[i] = input.value.trim();
+        next.length = extraCount;
+        set({ partyNames: next });
+      });
+      list.appendChild(field);
+    }
+  }
+
+  function renderSideButtons() {
+    $$("#side-bride, #side-groom").forEach((btn) => {
+      const isActive = state.side === btn.dataset.side;
+      btn.classList.toggle("is-active", isActive);
+      btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
   }
 
   function renderRsvp() {
     const nameInput = $("#rsvp-name");
     nameInput.value = state.name || "";
     nameInput.oninput = () => set({ name: nameInput.value.trim() });
+
+    const sizeInput = $("#rsvp-party-size");
+    sizeInput.value = state.partySize || 1;
+    sizeInput.oninput = () => {
+      const n = Math.max(1, Math.min(20, parseInt(sizeInput.value, 10) || 1));
+      // Trim or pad partyNames to match the new size.
+      const extra = n - 1;
+      const next = state.partyNames.slice(0, extra);
+      while (next.length < extra) next.push("");
+      set({ partySize: n, partyNames: next });
+      renderPartyNameInputs();
+    };
+
+    renderPartyNameInputs();
+    renderSideButtons();
   }
 
   function renderEvents() {
@@ -246,22 +311,34 @@
       window.ROUTER.go("gift");
     });
 
-    $("#rsvp-yes").addEventListener("click", () => {
+    $$("#side-bride, #side-groom").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        set({ side: btn.dataset.side });
+        renderSideButtons();
+      });
+    });
+
+    function validateRsvp() {
+      if (!state.side) {
+        alert("Please choose whether you're a guest of the bride or groom.");
+        return false;
+      }
       if (!state.name) {
         alert("Please enter your name first.");
         $("#rsvp-name").focus();
-        return;
+        return false;
       }
+      return true;
+    }
+
+    $("#rsvp-yes").addEventListener("click", () => {
+      if (!validateRsvp()) return;
       set({ attending: true });
       window.ROUTER.go("scope");
     });
 
     $("#rsvp-no").addEventListener("click", async () => {
-      if (!state.name) {
-        alert("Please enter your name first.");
-        $("#rsvp-name").focus();
-        return;
-      }
+      if (!validateRsvp()) return;
       set({
         attending: false,
         scope: null,

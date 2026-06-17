@@ -13,6 +13,13 @@ window.WEDDING_CONFIG = {
     mapUrl: ""
   },
 
+  // Path or URL to the invitation card PDF. When set, a 'View your invitation'
+  // button appears on the cover page. Drop your file at ./assets/invitation.pdf
+  // and uncomment the line below.
+  invitationPdf: "",
+  // invitationPdf: "./assets/invitation.pdf",
+
+
   // Up to 4 sub-events. Add/remove freely — pages 4 & 5 adapt.
   events: [
     { id: "e1", name: "Welcome evening",            date: "Wed eve (TBC)",  time: "from afternoon", venue: "Sambrama" },

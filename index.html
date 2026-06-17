@@ -32,6 +32,7 @@
         </p>
         <div class="cover-actions">
           <button id="cover-rsvp-btn" class="btn btn-primary">RSVP</button>
+          <a id="cover-invitation-link" class="btn btn-outline" target="_blank" rel="noopener" hidden>View your invitation</a>
         </div>
         <p class="cover-footnote">
           Can't make it? <a id="cover-gift-link" href="#gift">See the gift register</a>
@@ -42,13 +43,33 @@
     <!-- 2. Are you attending? -->
     <section data-step="rsvp" class="step" hidden>
       <h2>Can you join us?</h2>
+
+      <div class="field">
+        <span>You're a guest of…</span>
+        <div class="toggle-row">
+          <button type="button" id="side-bride" class="btn btn-outline side-btn" data-side="bride">Bride's side</button>
+          <button type="button" id="side-groom" class="btn btn-outline side-btn" data-side="groom">Groom's side</button>
+        </div>
+      </div>
+
       <label class="field">
         <span>Your name</span>
         <input id="rsvp-name" type="text" autocomplete="name" placeholder="Full name" />
       </label>
+
+      <label class="field">
+        <span>How many people will attend in total? (Including you)</span>
+        <input id="rsvp-party-size" type="number" min="1" max="20" step="1" inputmode="numeric" value="1" />
+      </label>
+
+      <div id="rsvp-party-names" hidden>
+        <p class="muted small">Please share the names of the others joining you.</p>
+        <div id="rsvp-party-names-list"></div>
+      </div>
+
       <div class="btn-row">
-        <button id="rsvp-yes" class="btn btn-primary">Yes, I'll be there</button>
-        <button id="rsvp-no" class="btn btn-outline">Sadly, I can't make it</button>
+        <button id="rsvp-yes" class="btn btn-primary">Yes, we'll be there</button>
+        <button id="rsvp-no" class="btn btn-outline">Sadly, we can't make it</button>
       </div>
       <p class="muted small">If you reply 'no' we'll save your reply and show you the gift register.</p>
     </section>
