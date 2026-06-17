@@ -11,23 +11,31 @@ All copy, dates, events, food options, accommodation and gift register live in *
 
 > The repo is **public**, so only put information in `config.js` you're happy for anyone to see.
 
-## Wiring the RSVP backend (optional)
+## Wiring the RSVP backend → Google Sheet
 
-Out of the box, when a guest submits an RSVP the site opens their email client with the answers pre-filled (`mailto:` to the address in `config.js`). To collect replies centrally instead:
+Out of the box, when a guest submits an RSVP the site opens their email client with the answers pre-filled (`mailto:` to the address in `config.js`). To collect replies centrally in a Google Sheet instead:
 
-1. Pick a no-code form endpoint. Both work fine:
-   - [Formspree](https://formspree.io) — free tier, dashboard + email notifications.
-   - [Google Apps Script web app](https://developers.google.com/apps-script/guides/web) writing to a Google Sheet — also free.
-2. Paste the endpoint URL into `js/config.js`:
+1. Create a new Google Sheet (any name, e.g. "Ankita & Shyam RSVPs").
+2. In the Sheet: **Extensions → Apps Script**. A new editor tab opens.
+3. Delete the default `Code.gs` contents and paste in the contents of **`apps_script.gs`** from this repo.
+4. Save, then **Deploy → New deployment**:
+   - Gear icon → **Web app**
+   - Execute as: **Me**
+   - Who has access: **Anyone**  ← required
+   - Click **Deploy** and authorise (click "Advanced → Go to … (unsafe)" if prompted — the script is yours, that warning is just because it's unverified).
+5. Copy the **Web app URL** (ends in `/exec`).
+6. Paste it into `js/config.js`:
    ```js
    rsvp: {
-     endpoint: "https://formspree.io/f/XXXXXXXX",
+     endpoint: "https://script.google.com/macros/s/XXXXXXX/exec",
      mailtoAddress: "you@example.com"
    }
    ```
-3. Commit + push. The site will POST JSON RSVPs to the endpoint and silently fall back to `mailto:` if the endpoint ever fails.
+7. Commit + push. The site will POST JSON RSVPs to the script, which appends a row to the Sheet. If the endpoint ever fails the site silently falls back to `mailto:` so submissions still get through.
 
-The URL is not a secret — it's safe in a public repo.
+The endpoint URL is not a secret — safe to keep in this public repo.
+
+**Re-deploying after script edits:** Deploy → Manage deployments → pencil icon → Version: **New version** → Deploy. The `/exec` URL stays the same.
 
 ## Deploying to GitHub Pages
 

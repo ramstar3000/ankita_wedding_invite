@@ -58,10 +58,14 @@
 
     if (cfg.endpoint) {
       try {
+        // text/plain keeps this as a CORS "simple request" so the browser
+        // skips the preflight OPTIONS — which Google Apps Script web apps
+        // don't handle. The Apps Script reads the raw body and JSON-parses it.
         const res = await fetch(cfg.endpoint, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify(payload)
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload),
+          redirect: "follow"
         });
         if (!res.ok) throw new Error("HTTP " + res.status);
         window.RSVP.set({ submittedAt: payload.submittedAt });
