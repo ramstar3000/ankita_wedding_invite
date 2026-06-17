@@ -110,13 +110,10 @@ p { margin: 8px 0 16px; }
   margin: 0 0 20px;
 }
 
-.cover-venue {
-  font-family: var(--serif);
-  font-size: 1.15rem;
-  margin: 0 0 24px;
+.cover-actions {
+  margin: 28px auto 16px;
+  max-width: 320px;
 }
-
-.cover-actions { margin: 28px 0 16px; }
 
 .cover-footnote {
   margin-top: 20px;
@@ -218,33 +215,6 @@ p { margin: 8px 0 16px; }
   border-color: var(--accent);
 }
 
-/* ---- Choice lists ------------------------------------------------------- */
-
-.choice-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 16px 0;
-}
-
-.choice {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  cursor: pointer;
-  background: #fffdfa;
-  transition: border-color 120ms ease, background 120ms ease;
-}
-.choice:hover { border-color: var(--accent); }
-.choice input { accent-color: var(--accent); transform: scale(1.1); }
-
-.choice-body { display: flex; flex-direction: column; }
-.choice-title { font-weight: 500; }
-.choice-meta { font-size: 0.85rem; color: var(--ink-soft); }
-
 /* ---- Brand band (logo across pages) ------------------------------------ */
 
 .brand-band {
@@ -305,17 +275,7 @@ p { margin: 8px 0 16px; }
   margin: 8px 0 16px;
 }
 .event-info { margin-bottom: 8px; }
-#event-count {
-  width: 100%;
-  font: inherit;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 12px;
-  background: #fffdfa;
-  color: var(--ink);
-}
-#event-count:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-#event-count-hint { display: block; margin-top: 6px; }
+.event-count-hint { margin: -8px 0 0; }
 
 /* ---- Thank-you summary ------------------------------------------------- */
 

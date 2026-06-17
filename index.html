@@ -30,7 +30,7 @@
         </h1>
         <p class="cover-date" id="cover-date">TBC</p>
 
-        <div class="cover-actions">
+        <div class="cover-actions btn-row stack">
           <button id="cover-rsvp-btn" class="btn btn-primary">RSVP</button>
           <a id="cover-invitation-link" class="btn btn-outline" target="_blank" rel="noopener" hidden>View your invitation</a>
         </div>
@@ -103,8 +103,8 @@
       <label class="field">
         <span id="event-count-label">How many of your party will attend?</span>
         <input id="event-count" type="number" min="0" max="20" step="1" inputmode="numeric" value="0" />
-        <span class="muted small" id="event-count-hint"></span>
       </label>
+      <p class="muted small event-count-hint" id="event-count-hint"></p>
 
       <div class="btn-row">
         <button id="event-back" class="btn btn-ghost">Back</button>
