@@ -11,9 +11,15 @@
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
+  <header class="brand-band" id="brand-band" hidden>
+    <a href="#cover" class="brand-link" aria-label="Back to start">
+      <img id="brand-logo" class="brand-logo" alt="A&amp;S monogram" />
+    </a>
+  </header>
+
   <main class="page">
 
-    <!-- 1. Cover -->
+    <!-- 1. Cover (slim) -->
     <section data-step="cover" class="step step-cover" hidden>
       <div class="cover-inner">
         <p class="cover-prelude">Together with their families</p>
@@ -23,20 +29,24 @@
           <span id="cover-name2">Shyam</span>
         </h1>
         <p class="cover-date" id="cover-date">TBC</p>
-        <p class="cover-venue">
-          <span id="cover-venue-name">TBC</span><br />
-          <span class="muted" id="cover-venue-address">TBC</span>
-        </p>
-        <p>
-          <a id="cover-venue-map" class="link" target="_blank" rel="noopener" hidden>View on map</a>
-        </p>
+
         <div class="cover-actions">
           <button id="cover-rsvp-btn" class="btn btn-primary">RSVP</button>
           <a id="cover-invitation-link" class="btn btn-outline" target="_blank" rel="noopener" hidden>View your invitation</a>
-          <a id="cover-travel-link" class="btn btn-outline" href="#travel">Travel &amp; arrival</a>
         </div>
+
+        <div class="qr-block" id="cover-map-qr-block" hidden>
+          <img id="cover-map-qr" class="qr-img" alt="QR code for venue map" />
+          <p class="qr-caption">
+            Scan for venue map ·
+            <a id="cover-map-link" class="link" target="_blank" rel="noopener">open in Maps</a>
+          </p>
+        </div>
+
         <p class="cover-footnote">
           Can't make it? <a id="cover-gift-link" href="#gift">See the gift register</a>
+          &nbsp;·&nbsp;
+          <a id="cover-travel-link" href="#travel">Travel &amp; arrival</a>
         </p>
       </div>
     </section>
@@ -75,57 +85,70 @@
       <p class="muted small">If you reply 'no' we'll save your reply and show you the gift register.</p>
     </section>
 
-    <!-- 3. Whole event or part? -->
-    <section data-step="scope" class="step" hidden>
-      <h2>Will you join the whole celebration?</h2>
-      <p class="muted">Some guests come for everything, others only a few events. Either is wonderful.</p>
-      <div class="btn-row">
-        <button id="scope-whole" class="btn btn-primary">Whole event</button>
-        <button id="scope-part" class="btn btn-outline">Just some events</button>
-      </div>
-    </section>
+    <!-- 3. Event page (dynamic — one per cfg.events entry) -->
+    <section data-step="event" class="step" hidden>
+      <p class="event-step-pos muted small" id="event-step-pos"></p>
+      <h2 id="event-name"></h2>
+      <p id="event-description" class="event-description"></p>
 
-    <!-- 4. Which events? -->
-    <section data-step="events" class="step" hidden>
-      <h2>Which events will you join?</h2>
-      <p class="muted">Pick as many as you'd like.</p>
-      <div id="events-list" class="choice-list"></div>
-      <div class="btn-row">
-        <button id="events-back" class="btn btn-ghost">Back</button>
-        <button id="events-next" class="btn btn-primary">Continue</button>
-      </div>
-    </section>
+      <dl class="info-dl event-info">
+        <dt>When</dt>
+        <dd id="event-when"></dd>
+        <dt>Meals</dt>
+        <dd id="event-meals"></dd>
+        <dt>Dress code</dt>
+        <dd id="event-dress"></dd>
+      </dl>
 
-    <!-- 5. Food choices -->
-    <section data-step="food" class="step" hidden>
-      <h2>Food choices</h2>
-      <p class="muted">Pick a meal preference for each event you'll attend.</p>
-      <div id="food-list"></div>
-      <div class="btn-row">
-        <button id="food-back" class="btn btn-ghost">Back</button>
-        <button id="food-next" class="btn btn-primary">Continue</button>
-      </div>
-    </section>
-
-    <!-- 6. Accommodation -->
-    <section data-step="accommodation" class="step" hidden>
-      <h2>Accommodation</h2>
-      <p id="accommodation-desc" class="muted"></p>
-      <div id="accommodation-list" class="choice-list"></div>
       <label class="field">
-        <span>Anything else we should know? (Optional)</span>
-        <textarea id="accommodation-notes" rows="3" placeholder="Dietary notes, travel info, etc."></textarea>
+        <span id="event-count-label">How many of your party will attend?</span>
+        <input id="event-count" type="number" min="0" max="20" step="1" inputmode="numeric" value="0" />
+        <span class="muted small" id="event-count-hint"></span>
       </label>
+
       <div class="btn-row">
-        <button id="accommodation-back" class="btn btn-ghost">Back</button>
-        <button id="accommodation-submit" class="btn btn-primary">Send RSVP</button>
+        <button id="event-back" class="btn btn-ghost">Back</button>
+        <button id="event-next" class="btn btn-primary">Continue</button>
       </div>
     </section>
 
-    <!-- 7a. Thanks -->
+    <!-- 4. Final notes (allergies + contact) -->
+    <section data-step="notes" class="step" hidden>
+      <h2>One last thing</h2>
+      <p class="muted">A few details that help us look after you on the day.</p>
+
+      <label class="field">
+        <span>Allergies or additional food needs (Optional)</span>
+        <textarea id="notes-allergies" rows="3" placeholder="e.g. nut allergy for Priya, Jain meals preferred…"></textarea>
+      </label>
+
+      <label class="field">
+        <span>Email — we'll send a summary of your RSVP</span>
+        <input id="notes-email" type="email" autocomplete="email" placeholder="you@example.com" />
+      </label>
+
+      <label class="field">
+        <span>Phone (Optional, for last-minute updates)</span>
+        <input id="notes-phone" type="tel" autocomplete="tel" placeholder="+44 7… / +91 9…" />
+      </label>
+
+      <div class="btn-row">
+        <button id="notes-back" class="btn btn-ghost">Back</button>
+        <button id="notes-submit" class="btn btn-primary">Send RSVP</button>
+      </div>
+    </section>
+
+    <!-- 5a. Thanks -->
     <section data-step="thanks" class="step step-center" hidden>
       <h2>RSVP received</h2>
       <p id="thanks-line">Thank you!</p>
+
+      <div id="thanks-summary" class="summary-card" hidden>
+        <h3 class="summary-heading">Your RSVP</h3>
+        <dl id="thanks-summary-list" class="summary-list"></dl>
+        <p class="muted small" id="thanks-email-note" hidden></p>
+      </div>
+
       <p>
         <a id="thanks-gift-link" href="#gift" class="link">See the gift register</a>
       </p>
@@ -159,13 +182,8 @@
         </details>
 
         <details class="results-section" open>
-          <summary>Food preferences</summary>
-          <div id="results-meals" class="results-meal-list"></div>
-        </details>
-
-        <details class="results-section" open>
-          <summary>Accommodation requests</summary>
-          <div id="results-accommodation" class="results-bar-list"></div>
+          <summary>Allergies &amp; notes</summary>
+          <div id="results-allergies" class="results-notes-list"></div>
         </details>
 
         <details class="results-section">
@@ -215,7 +233,7 @@
       </div>
     </section>
 
-    <!-- 7b. Gift register -->
+    <!-- Gift register -->
     <section data-step="gift" class="step" hidden>
       <h2>Gift register</h2>
       <p id="gift-message" class="muted"></p>

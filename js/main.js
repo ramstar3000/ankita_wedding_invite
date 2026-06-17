@@ -8,20 +8,28 @@
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $$(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
 
+  // ---- Brand band (logo across pages) ------------------------------------
+
+  function renderBrand() {
+    const band = $("#brand-band");
+    const img = $("#brand-logo");
+    if (cfg.logoSrc) {
+      img.src = cfg.logoSrc;
+      band.hidden = false;
+      // If the logo file is missing the <img> 404s — hide the band so we don't
+      // show a broken-image icon.
+      img.addEventListener("error", () => { band.hidden = true; }, { once: true });
+    } else {
+      band.hidden = true;
+    }
+  }
+
+  // ---- Cover -------------------------------------------------------------
+
   function renderCover() {
     $("#cover-name1").textContent = cfg.couple.name1;
     $("#cover-name2").textContent = cfg.couple.name2;
     $("#cover-date").textContent = cfg.date;
-    $("#cover-venue-name").textContent = cfg.venue.name;
-    $("#cover-venue-address").textContent = cfg.venue.address;
-
-    const mapLink = $("#cover-venue-map");
-    if (cfg.venue.mapUrl) {
-      mapLink.href = cfg.venue.mapUrl;
-      mapLink.hidden = false;
-    } else {
-      mapLink.hidden = true;
-    }
 
     const invitationLink = $("#cover-invitation-link");
     if (cfg.invitationPdf) {
@@ -30,7 +38,23 @@
     } else {
       invitationLink.hidden = true;
     }
+
+    const qrBlock = $("#cover-map-qr-block");
+    const qrImg = $("#cover-map-qr");
+    const mapLink = $("#cover-map-link");
+    if (cfg.mapQrSrc) {
+      qrImg.src = cfg.mapQrSrc;
+      qrBlock.hidden = false;
+      qrImg.addEventListener("error", () => { qrBlock.hidden = true; }, { once: true });
+    } else {
+      qrBlock.hidden = true;
+    }
+    if (cfg.venue && cfg.venue.mapUrl) {
+      mapLink.href = cfg.venue.mapUrl;
+    }
   }
+
+  // ---- RSVP step ---------------------------------------------------------
 
   function renderPartyNameInputs() {
     const wrap = $("#rsvp-party-names");
@@ -83,7 +107,6 @@
     sizeInput.value = state.partySize || 1;
     sizeInput.oninput = () => {
       const n = Math.max(1, Math.min(20, parseInt(sizeInput.value, 10) || 1));
-      // Trim or pad partyNames to match the new size.
       const extra = n - 1;
       const next = state.partyNames.slice(0, extra);
       while (next.length < extra) next.push("");
@@ -95,93 +118,66 @@
     renderSideButtons();
   }
 
-  function renderEvents() {
-    const list = $("#events-list");
-    list.innerHTML = "";
-    cfg.events.forEach((ev) => {
-      const id = `ev-${ev.id}`;
-      const wrap = document.createElement("label");
-      wrap.className = "choice";
-      wrap.innerHTML = `
-        <input type="checkbox" id="${id}" value="${ev.id}">
-        <span class="choice-body">
-          <span class="choice-title">${ev.name}</span>
-          <span class="choice-meta">${[ev.date, ev.time, ev.venue].filter(Boolean).join(" · ")}</span>
-        </span>
-      `;
-      const input = wrap.querySelector("input");
-      input.checked = state.selectedEventIds.includes(ev.id);
-      input.addEventListener("change", () => {
-        const next = new Set(state.selectedEventIds);
-        if (input.checked) next.add(ev.id); else next.delete(ev.id);
-        set({ selectedEventIds: Array.from(next) });
-      });
-      list.appendChild(wrap);
-    });
+  // ---- Event step (dynamic, paginated) -----------------------------------
+
+  function currentEvent() {
+    return (cfg.events || [])[state.currentEventIndex] || null;
   }
 
-  function attendingEventIds() {
-    return state.scope === "whole"
-      ? cfg.events.map((e) => e.id)
-      : state.selectedEventIds;
+  function renderEventStep() {
+    const ev = currentEvent();
+    if (!ev) return; // router guard will move us to notes
+    const total = (cfg.events || []).length;
+
+    $("#event-step-pos").textContent = `Event ${state.currentEventIndex + 1} of ${total}`;
+    $("#event-name").textContent = ev.name;
+    $("#event-description").textContent = ev.description || "";
+    $("#event-when").textContent = [ev.date, ev.time].filter(Boolean).join(" · ");
+    $("#event-meals").textContent = ev.meals || "";
+    $("#event-dress").textContent = ev.dressCode || "";
+
+    const partySize = Math.max(1, state.partySize || 1);
+    const max = Math.max(20, partySize);
+    const stored = state.eventCounts[ev.id];
+    const countInput = $("#event-count");
+    countInput.max = String(max);
+    countInput.value = stored != null ? stored : 0;
+
+    $("#event-count-hint").textContent = `Up to ${partySize} (your party size)`;
+
+    countInput.oninput = () => {
+      const raw = parseInt(countInput.value, 10);
+      const n = isNaN(raw) ? 0 : Math.max(0, Math.min(max, raw));
+      const next = { ...state.eventCounts, [ev.id]: n };
+      set({ eventCounts: next });
+    };
+
+    const backBtn = $("#event-back");
+    backBtn.textContent = state.currentEventIndex === 0 ? "Back to RSVP" : "Previous event";
+
+    const nextBtn = $("#event-next");
+    nextBtn.textContent = state.currentEventIndex === total - 1
+      ? "Continue to final step"
+      : "Next event";
   }
 
-  function renderFood() {
-    const list = $("#food-list");
-    list.innerHTML = "";
-    const ids = new Set(attendingEventIds());
-    const meals = cfg.foodEvents.filter((f) => ids.has(f.eventId));
+  // ---- Notes step --------------------------------------------------------
 
-    if (meals.length === 0) {
-      list.innerHTML = `<p class="muted">No meals to choose for the events you selected.</p>`;
-      return;
-    }
+  function renderNotesStep() {
+    const a = $("#notes-allergies");
+    a.value = state.allergies || "";
+    a.oninput = () => set({ allergies: a.value });
 
-    meals.forEach((meal) => {
-      const block = document.createElement("fieldset");
-      block.className = "food-block";
-      block.innerHTML = `<legend>${meal.label}</legend>`;
-      meal.options.forEach((opt) => {
-        const radioId = `food-${meal.id}-${opt.replace(/\s+/g, "-")}`;
-        const row = document.createElement("label");
-        row.className = "choice";
-        row.innerHTML = `
-          <input type="radio" name="food-${meal.id}" id="${radioId}" value="${opt}">
-          <span class="choice-body"><span class="choice-title">${opt}</span></span>
-        `;
-        const input = row.querySelector("input");
-        input.checked = state.foodChoices[meal.id] === opt;
-        input.addEventListener("change", () => {
-          const next = { ...state.foodChoices, [meal.id]: opt };
-          set({ foodChoices: next });
-        });
-        block.appendChild(row);
-      });
-      list.appendChild(block);
-    });
+    const e = $("#notes-email");
+    e.value = state.email || "";
+    e.oninput = () => set({ email: e.value.trim() });
+
+    const p = $("#notes-phone");
+    p.value = state.phone || "";
+    p.oninput = () => set({ phone: p.value.trim() });
   }
 
-  function renderAccommodation() {
-    $("#accommodation-desc").textContent = cfg.accommodation.description || "";
-    const list = $("#accommodation-list");
-    list.innerHTML = "";
-    cfg.accommodation.options.forEach((opt) => {
-      const row = document.createElement("label");
-      row.className = "choice";
-      row.innerHTML = `
-        <input type="radio" name="accommodation" value="${opt}">
-        <span class="choice-body"><span class="choice-title">${opt}</span></span>
-      `;
-      const input = row.querySelector("input");
-      input.checked = state.accommodation === opt;
-      input.addEventListener("change", () => set({ accommodation: opt }));
-      list.appendChild(row);
-    });
-
-    const notes = $("#accommodation-notes");
-    notes.value = state.notes || "";
-    notes.oninput = () => set({ notes: notes.value });
-  }
+  // ---- Travel ------------------------------------------------------------
 
   function renderTravel() {
     const t = cfg.travel || {};
@@ -215,6 +211,8 @@
     else { notes.hidden = true; }
   }
 
+  // ---- Gift register -----------------------------------------------------
+
   function renderGift() {
     $("#gift-message").textContent = cfg.gifts.message || "";
 
@@ -239,7 +237,63 @@
     }
   }
 
-  // ---- Results viewer (password-gated) ------------------------------------
+  // ---- Thanks ------------------------------------------------------------
+
+  function renderThanks() {
+    const name = state.name ? `, ${state.name}` : "";
+    $("#thanks-line").textContent = state.attending
+      ? `Thank you${name}! We can't wait to celebrate with you.`
+      : `Thank you${name} for letting us know.`;
+
+    const summary = $("#thanks-summary");
+    const list = $("#thanks-summary-list");
+    const emailNote = $("#thanks-email-note");
+
+    if (!state.attending) {
+      summary.hidden = true;
+      emailNote.hidden = true;
+      return;
+    }
+
+    list.innerHTML = "";
+
+    function row(label, value) {
+      const dt = document.createElement("dt");
+      dt.textContent = label;
+      const dd = document.createElement("dd");
+      dd.textContent = value;
+      list.appendChild(dt);
+      list.appendChild(dd);
+    }
+
+    const sideLabel = state.side === "bride" ? "Bride's side"
+                    : state.side === "groom" ? "Groom's side"
+                    : "—";
+    row("Guest of", sideLabel);
+    row("Party size", String(state.partySize || 1));
+    if (state.partyNames && state.partyNames.filter(Boolean).length) {
+      row("Names", [state.name].concat(state.partyNames.filter(Boolean)).join(", "));
+    }
+
+    const eventNameById = Object.fromEntries((cfg.events || []).map((e) => [e.id, e.name]));
+    (cfg.events || []).forEach((ev) => {
+      const n = state.eventCounts[ev.id] || 0;
+      row(eventNameById[ev.id] || ev.id, n === 0 ? "Not attending" : `${n} attending`);
+    });
+
+    if (state.allergies) row("Allergies / food notes", state.allergies);
+
+    summary.hidden = false;
+
+    if (state.email) {
+      emailNote.textContent = `A copy has been recorded against ${state.email}.`;
+      emailNote.hidden = false;
+    } else {
+      emailNote.hidden = true;
+    }
+  }
+
+  // ---- Results viewer (password-gated) -----------------------------------
 
   function showResultsAuth(errorMsg) {
     $("#results-auth").hidden = false;
@@ -253,36 +307,42 @@
     }
   }
 
-  // ---- Results aggregation + render ---------------------------------------
+  // ---- Results aggregation + render --------------------------------------
 
-  function parseFoodChoices(str) {
+  function parseEventCounts(str) {
+    if (!str) return {};
+    try {
+      const obj = JSON.parse(String(str));
+      return (obj && typeof obj === "object") ? obj : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  // Legacy fallback for rows submitted by the old (pre-restructure) flow.
+  // Old `attendingEvents` is a comma-separated list of event NAMES; assume each
+  // such name pulls in the full partySize for headcount purposes.
+  function legacyEventNames(str) {
     if (!str) return [];
-    return String(str).split(";").map((s) => s.trim()).filter(Boolean).map((s) => {
-      const i = s.indexOf(":");
-      return i === -1
-        ? { meal: s, choice: "" }
-        : { meal: s.slice(0, i).trim(), choice: s.slice(i + 1).trim() };
-    });
+    return String(str).split(",").map((s) => s.trim()).filter(Boolean);
   }
 
   function aggregate(headers, rows) {
     const idx = {};
     headers.forEach((h, i) => { idx[String(h)] = i; });
-
     const get = (row, key) => (key in idx ? row[idx[key]] : "");
 
     const records = rows.map((row) => ({
       submittedAt: get(row, "submittedAt"),
       name: String(get(row, "name") || ""),
       attending: String(get(row, "attending") || ""),
-      scope: String(get(row, "scope") || ""),
-      attendingEvents: String(get(row, "attendingEvents") || "")
-        .split(",").map((s) => s.trim()).filter(Boolean),
-      foodChoices: parseFoodChoices(get(row, "foodChoices")),
-      accommodation: String(get(row, "accommodation") || ""),
-      notes: String(get(row, "notes") || ""),
       side: String(get(row, "side") || ""),
-      partySize: Math.max(1, Number(get(row, "partySize")) || 1)
+      partySize: Math.max(1, Number(get(row, "partySize")) || 1),
+      eventCounts: parseEventCounts(get(row, "eventCounts")),
+      legacyEvents: legacyEventNames(get(row, "attendingEvents")),
+      allergies: String(get(row, "allergies") || get(row, "notes") || ""),
+      email: String(get(row, "email") || ""),
+      phone: String(get(row, "phone") || "")
     }));
 
     const yes = records.filter((r) => r.attending === "Yes");
@@ -297,30 +357,28 @@
       groomSide: records.filter((r) => /^Groom/.test(r.side)).length
     };
 
+    // Per-event headcount, summed across rows. Mix old + new schemas.
     const eventCounts = {};
+    const eventNameById = Object.fromEntries((cfg.events || []).map((e) => [e.id, e.name]));
     yes.forEach((r) => {
-      r.attendingEvents.forEach((ev) => {
-        eventCounts[ev] = (eventCounts[ev] || 0) + r.partySize;
+      Object.entries(r.eventCounts).forEach(([id, n]) => {
+        const name = eventNameById[id] || id;
+        const num = Math.max(0, Number(n) || 0);
+        if (num > 0) eventCounts[name] = (eventCounts[name] || 0) + num;
       });
+      // Legacy rows: no per-event count → assume full party size for each named event.
+      if (Object.keys(r.eventCounts).length === 0 && r.legacyEvents.length) {
+        r.legacyEvents.forEach((name) => {
+          eventCounts[name] = (eventCounts[name] || 0) + r.partySize;
+        });
+      }
     });
 
-    const mealCounts = {}; // { mealLabel: { choice: count } }
-    yes.forEach((r) => {
-      r.foodChoices.forEach(({ meal, choice }) => {
-        if (!meal) return;
-        mealCounts[meal] = mealCounts[meal] || {};
-        const key = choice || "(no choice)";
-        mealCounts[meal][key] = (mealCounts[meal][key] || 0) + r.partySize;
-      });
-    });
+    const allergyNotes = records
+      .filter((r) => r.allergies && r.allergies.trim())
+      .map((r) => ({ name: r.name || "(unnamed)", text: r.allergies.trim() }));
 
-    const accomCounts = {};
-    yes.forEach((r) => {
-      if (!r.accommodation) return;
-      accomCounts[r.accommodation] = (accomCounts[r.accommodation] || 0) + r.partySize;
-    });
-
-    return { records, totals, eventCounts, mealCounts, accomCounts };
+    return { records, totals, eventCounts, allergyNotes };
   }
 
   // ---- Pie chart helpers --------------------------------------------------
@@ -328,7 +386,6 @@
   const SVG_NS = "http://www.w3.org/2000/svg";
 
   function pieSlicePath(cx, cy, r, startAngle, endAngle) {
-    // Full-circle slice: draw as two arcs so the SVG path is valid.
     if (endAngle - startAngle >= Math.PI * 2 - 1e-6) {
       return `M ${cx} ${cy - r} A ${r} ${r} 0 1 1 ${cx - 0.001} ${cy - r} Z`;
     }
@@ -414,9 +471,6 @@
     return wrap;
   }
 
-  // Stable palette for accommodation / overflow categories.
-  const PIE_PALETTE = ["#b25a6b", "#d8a48f", "#e7c397", "#8a9d8c", "#7d8aa4", "#c2829a"];
-
   function card(value, label) {
     const el = document.createElement("div");
     el.className = "results-card";
@@ -475,14 +529,7 @@
       { label: "Groom's",  value: data.totals.groomSide, color: "#7d8aa4" }
     ]));
 
-    const accomSegments = Object.entries(data.accomCounts)
-      .sort((a, b) => b[1] - a[1])
-      .map(([label, value], i) => ({
-        label, value, color: PIE_PALETTE[i % PIE_PALETTE.length]
-      }));
-    pies.appendChild(makePieWithLegend("Accommodation", accomSegments));
-
-    // Per-event attendance — order by cfg.events when possible, append unknowns.
+    // Per-event attendance — order by cfg.events when possible.
     const eventList = $("#results-events");
     eventList.innerHTML = "";
     const eventOrder = (cfg.events || []).map((e) => e.name);
@@ -498,53 +545,24 @@
       });
     }
 
-    // Food preferences — group by meal, then list choices.
-    const mealList = $("#results-meals");
-    mealList.innerHTML = "";
-    const mealOrder = (cfg.foodEvents || []).map((m) => m.label);
-    const mealsInOrder = mealOrder.filter((n) => data.mealCounts[n] != null);
-    const extraMeals = Object.keys(data.mealCounts).filter((n) => !mealOrder.includes(n));
-    const allMeals = mealsInOrder.concat(extraMeals);
-    if (allMeals.length === 0) {
-      mealList.innerHTML = `<p class="muted small">No food choices yet.</p>`;
+    // Allergies / notes
+    const allergies = $("#results-allergies");
+    allergies.innerHTML = "";
+    if (data.allergyNotes.length === 0) {
+      allergies.innerHTML = `<p class="muted small">No allergy or food notes yet.</p>`;
     } else {
-      allMeals.forEach((mealName) => {
-        const block = document.createElement("div");
-        block.className = "results-meal-block";
-        const choices = data.mealCounts[mealName];
-        const total = Object.values(choices).reduce((a, b) => a + b, 0);
-        const pills = Object.entries(choices)
-          .sort((a, b) => b[1] - a[1])
-          .map(([choice, n]) => `<span class="pill">${choice} · <strong>${n}</strong></span>`)
-          .join("");
-        block.innerHTML = `
-          <div class="results-meal-head">
-            <span class="results-meal-name">${mealName}</span>
-            <span class="results-bar-count">${total}</span>
-          </div>
-          <div class="pill-row">${pills}</div>
-        `;
-        mealList.appendChild(block);
+      data.allergyNotes.forEach((n) => {
+        const item = document.createElement("div");
+        item.className = "results-notes-item";
+        item.innerHTML = `<span class="results-notes-name">${n.name}:</span><span>${n.text}</span>`;
+        allergies.appendChild(item);
       });
     }
 
-    // Accommodation
-    const accomList = $("#results-accommodation");
-    accomList.innerHTML = "";
-    const accomNames = Object.keys(data.accomCounts);
-    const maxAccom = Math.max(1, ...Object.values(data.accomCounts));
-    if (accomNames.length === 0) {
-      accomList.innerHTML = `<p class="muted small">No accommodation choices yet.</p>`;
-    } else {
-      accomNames.sort((a, b) => data.accomCounts[b] - data.accomCounts[a]).forEach((name) => {
-        accomList.appendChild(barRow(name, data.accomCounts[name], maxAccom));
-      });
-    }
-
-    // All-responses table (compact, key columns only, newest first)
+    // All-responses table
     const table = $("#results-table");
     table.innerHTML = "";
-    const tableHeaders = ["When", "Name", "Side", "Size", "Status", "Events"];
+    const tableHeaders = ["When", "Name", "Side", "Size", "Status", "Per event", "Email"];
     const thead = document.createElement("thead");
     const trh = document.createElement("tr");
     tableHeaders.forEach((h) => {
@@ -561,15 +579,21 @@
       const db = new Date(b.submittedAt).getTime() || 0;
       return db - da;
     });
+    const eventNameById = Object.fromEntries((cfg.events || []).map((e) => [e.id, e.name]));
     sorted.forEach((r) => {
       const tr = document.createElement("tr");
+      const counts = Object.entries(r.eventCounts)
+        .filter(([, n]) => Number(n) > 0)
+        .map(([id, n]) => `${eventNameById[id] || id}: ${n}`)
+        .join("; ");
       const cells = [
         fmtDate(r.submittedAt),
         r.name || "—",
         r.side.replace("'s side", "") || "—",
         String(r.partySize),
         r.attending || "—",
-        r.attendingEvents.length ? r.attendingEvents.join(", ") : "—"
+        counts || (r.legacyEvents.length ? r.legacyEvents.join(", ") + " (legacy)" : "—"),
+        r.email || "—"
       ];
       cells.forEach((c, i) => {
         const td = document.createElement("td");
@@ -626,20 +650,17 @@
     }
   }
 
-  function renderThanks() {
-    const name = state.name ? `, ${state.name}` : "";
-    $("#thanks-line").textContent = state.attending
-      ? `Thank you${name}! We can't wait to celebrate with you.`
-      : `Thank you${name} for letting us know.`;
-  }
-
-  // ---- Button wiring -------------------------------------------------------
+  // ---- Button wiring -----------------------------------------------------
 
   function wireButtons() {
     $("#cover-rsvp-btn").addEventListener("click", () => window.ROUTER.go("rsvp"));
     $("#cover-gift-link").addEventListener("click", (e) => {
       e.preventDefault();
       window.ROUTER.go("gift");
+    });
+    $("#cover-travel-link").addEventListener("click", (e) => {
+      e.preventDefault();
+      window.ROUTER.go("travel");
     });
 
     $$("#side-bride, #side-groom").forEach((btn) => {
@@ -664,48 +685,56 @@
 
     $("#rsvp-yes").addEventListener("click", () => {
       if (!validateRsvp()) return;
-      set({ attending: true });
-      window.ROUTER.go("scope");
+      // Default each event count to the full party size when first entering the flow,
+      // so the common case (everyone attending everything) only needs taps to reduce.
+      const defaults = {};
+      (cfg.events || []).forEach((ev) => {
+        defaults[ev.id] = state.eventCounts[ev.id] != null
+          ? state.eventCounts[ev.id]
+          : state.partySize;
+      });
+      set({ attending: true, currentEventIndex: 0, eventCounts: defaults });
+      window.ROUTER.go("event");
     });
 
     $("#rsvp-no").addEventListener("click", async () => {
       if (!validateRsvp()) return;
       set({
         attending: false,
-        scope: null,
-        selectedEventIds: [],
-        foodChoices: {},
-        accommodation: null
+        eventCounts: {},
+        allergies: ""
       });
       await window.SUBMIT.submit();
       window.ROUTER.go("gift");
     });
 
-    $("#scope-whole").addEventListener("click", () => {
-      set({ scope: "whole", selectedEventIds: cfg.events.map((e) => e.id) });
-      window.ROUTER.go("food");
-    });
-    $("#scope-part").addEventListener("click", () => {
-      set({ scope: "part" });
-      window.ROUTER.go("events");
-    });
-
-    $("#events-next").addEventListener("click", () => {
-      if (state.selectedEventIds.length === 0) {
-        alert("Please pick at least one event, or go back and choose 'Whole event'.");
-        return;
+    $("#event-back").addEventListener("click", () => {
+      if (state.currentEventIndex === 0) {
+        window.ROUTER.go("rsvp");
+      } else {
+        set({ currentEventIndex: state.currentEventIndex - 1 });
+        window.ROUTER.render();
       }
-      window.ROUTER.go("food");
     });
-    $("#events-back").addEventListener("click", () => window.ROUTER.go("scope"));
 
-    $("#food-next").addEventListener("click", () => window.ROUTER.go("accommodation"));
-    $("#food-back").addEventListener("click", () =>
-      window.ROUTER.go(state.scope === "part" ? "events" : "scope")
-    );
+    $("#event-next").addEventListener("click", () => {
+      const total = (cfg.events || []).length;
+      if (state.currentEventIndex >= total - 1) {
+        window.ROUTER.go("notes");
+      } else {
+        set({ currentEventIndex: state.currentEventIndex + 1 });
+        window.ROUTER.render();
+      }
+    });
 
-    $("#accommodation-back").addEventListener("click", () => window.ROUTER.go("food"));
-    $("#accommodation-submit").addEventListener("click", async () => {
+    $("#notes-back").addEventListener("click", () => {
+      // Step back into the last event page.
+      const total = (cfg.events || []).length;
+      set({ currentEventIndex: Math.max(0, total - 1) });
+      window.ROUTER.go("event");
+    });
+
+    $("#notes-submit").addEventListener("click", async () => {
       await window.SUBMIT.submit();
       window.ROUTER.go("thanks");
     });
@@ -736,15 +765,14 @@
     $("#results-back").addEventListener("click", () => window.ROUTER.go("cover"));
   }
 
-  // ---- Step listener -------------------------------------------------------
+  // ---- Step listener -----------------------------------------------------
 
   window.addEventListener("rsvp:step", (e) => {
     switch (e.detail) {
       case "cover": renderCover(); break;
       case "rsvp": renderRsvp(); break;
-      case "events": renderEvents(); break;
-      case "food": renderFood(); break;
-      case "accommodation": renderAccommodation(); break;
+      case "event": renderEventStep(); break;
+      case "notes": renderNotesStep(); break;
       case "thanks": renderThanks(); break;
       case "gift": renderGift(); break;
       case "travel": renderTravel(); break;
@@ -753,6 +781,7 @@
   });
 
   window.addEventListener("DOMContentLoaded", () => {
+    renderBrand();
     renderCover();
     wireButtons();
   });

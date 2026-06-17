@@ -2,7 +2,7 @@
 // so a mid-flow refresh doesn't wipe progress, but cleared when the tab closes.
 
 (function () {
-  const KEY = "ankita_wedding_rsvp_state_v1";
+  const KEY = "ankita_wedding_rsvp_state_v2";
 
   const DEFAULTS = {
     name: "",
@@ -10,11 +10,11 @@
     partySize: 1,           // total people incl. the lead guest
     partyNames: [],         // names of the additional people (length = partySize - 1)
     attending: null,        // true | false | null
-    scope: null,            // "whole" | "part" | null
-    selectedEventIds: [],   // string[]
-    foodChoices: {},        // { [foodId]: optionString }
-    accommodation: null,    // string | null
-    notes: "",
+    currentEventIndex: 0,   // which cfg.events[i] the event step is showing
+    eventCounts: {},        // { [eventId]: number } — count of party attending each event
+    allergies: "",          // free-text allergies / additional food needs
+    email: "",              // contact email for RSVP summary
+    phone: "",              // optional phone
     submittedAt: null
   };
 
@@ -44,7 +44,7 @@
   }
 
   function reset() {
-    Object.assign(state, DEFAULTS, { selectedEventIds: [], foodChoices: {} });
+    Object.assign(state, DEFAULTS, { eventCounts: {}, partyNames: [] });
     try { sessionStorage.removeItem(KEY); } catch (e) {}
   }
 

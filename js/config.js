@@ -6,52 +6,57 @@ window.WEDDING_CONFIG = {
     name1: "Ankita",
     name2: "Shyam"
   },
-  date: "Wednesday 18 – Friday 20 November 2026",
+  date: "Thursday 19 – Friday 20 November 2026",
   venue: {
     name: "Sambrama by Swanlines",
     address: "No 107 & 108, Thittahalli Rd, Kaggalipura, Bengaluru, Karnataka 560082",
     mapUrl: "https://www.google.com/maps/search/?api=1&query=Sambrama+by+Swanlines+Kaggalipura+Bengaluru"
   },
 
-  // Path or URL to the invitation card PDF. When set, a 'View your invitation'
-  // button appears on the cover page. Drop your file at ./assets/invitation.pdf
-  // and uncomment the line below.
+  // A&S monogram logo shown across pages. Drop your file at ./assets/logo.svg
+  // (PNG also fine — update the extension). Leave blank to hide the brand band.
+  logoSrc: "./assets/logo.svg",
+
+  // Path or URL to the invitation card PDF. When set, a 'View invitation'
+  // button appears on the cover. Drop your file at ./assets/invitation.pdf
+  // and set the path below.
   invitationPdf: "",
-  // invitationPdf: "./assets/invitation.pdf",
 
+  // Pre-generated QR code SVG pointing at venue.mapUrl. Generate once with e.g.
+  //   qrencode -t svg -o assets/map-qr.svg "<map url>"
+  // then commit. Leave blank to hide the QR block.
+  mapQrSrc: "./assets/map-qr.svg",
 
-  // Up to 4 sub-events. Add/remove freely — pages 4 & 5 adapt.
+  // Three events at Sambrama. Each gets its own page in the RSVP flow.
   events: [
-    { id: "e1", name: "Welcome evening",             date: "Wed 18 Nov", time: "from afternoon", venue: "Sambrama"},
-    { id: "e2", name: "Haldi & day rituals",         date: "Thu 19 Nov", time: "morning",        venue: "Sambrama"},
-    { id: "e3", name: "Baarat, welcome & reception", date: "Thu 19 Nov", time: "evening",        venue: "Sambrama"},
-    { id: "e4", name: "Wedding ceremony",            date: "Fri 20 Nov", time: "early morning",  venue: "Sambrama"}
+    {
+      id: "haldi",
+      name: "Nischayatartham & Haldi",
+      date: "Thu 19 Nov",
+      time: "8:00 am – 1:30 pm",
+      meals: "Breakfast and lunch",
+      dressCode: "Traditional Indian wear in cheerful festive tones — bright yellows, oranges, mustard, and marigold hues.",
+      description: "Join us for the Engagement and Haldi ceremonies as we seek blessings and celebrate the beginning of our wedding festivities."
+    },
+    {
+      id: "reception",
+      name: "Baraat & Reception",
+      date: "Thu 19 Nov",
+      time: "5:00 pm onwards",
+      meals: "Snacks and dinner",
+      dressCode: "Formal, glamorous festive attire — dress to impress in your finest sarees, lehengas, sherwanis, or suits in vibrant celebratory colours.",
+      description: "Celebrate with us as the groom's procession arrives, followed by an evening of music, joy, and warm wishes from family and friends."
+    },
+    {
+      id: "wedding",
+      name: "Wedding ceremony",
+      date: "Fri 20 Nov",
+      time: "5:00 am onwards",
+      meals: "Breakfast and lunch",
+      dressCode: "Traditional South Indian attire — silk sarees, veshti/dhoti, or elegant ethnic wear in classic tones.",
+      description: "Witness the sacred South Indian wedding ceremony featuring timeless rituals and countless blessings in the presence of our loved ones."
+    }
   ],
-
-  // One entry per meal served. Link each to an event via eventId so page 5
-  // only shows meals for events the guest is attending.
-  foodEvents: [
-    { id: "f1", eventId: "e1", label: "Wed dinner",            options: ["Veg", "Jain", "No meal"] },
-    { id: "f2", eventId: "e2", label: "Thu breakfast",         options: ["Veg", "Jain", "No meal"] },
-    { id: "f3", eventId: "e2", label: "Thu lunch",             options: ["Veg", "Jain", "No meal"] },
-    { id: "f4", eventId: "e3", label: "Thu reception dinner",  options: ["Veg", "Jain", "No meal"] },
-    { id: "f5", eventId: "e4", label: "Fri breakfast",         options: ["Veg", "Jain", "No meal"] },
-    { id: "f6", eventId: "e4", label: "Fri lunch",             options: ["Veg", "Jain", "No meal"] }
-  ],
-
-  accommodation: {
-    description:
-      "Sambrama has a block of on-site rooms and two villas held for our wedding guests, " +
-      "all en-suite and a short walk from where the events happen. Let us know your " +
-      "preference and we'll do our best to allocate before the date.",
-    options: [
-      "On-site room at Sambrama (please arrange)",
-      "On-site villa share at Sambrama (please arrange)",
-      "Self-arranged hotel nearby",
-      "Staying locally with family",
-      "Day visitor only — no overnight needed"
-    ]
-  },
 
   gifts: {
     message:
@@ -79,7 +84,7 @@ window.WEDDING_CONFIG = {
       note: "About 50 km / 90 minutes by road from Sambrama — south of the city, on Kanakapura Road."
     },
     arrival: {
-      suggested: "Arrive into Bengaluru on or before Wednesday 18 November, in time for the welcome evening at Sambrama from the afternoon onwards.",
+      suggested: "Arrive into Bengaluru on or before Wednesday 18 November, in time to settle before the Haldi ceremony on Thursday morning.",
       departure: "Most events wrap up by Friday afternoon (20 November), so any flights out from Friday evening onwards work."
     },
     transport: [
@@ -112,8 +117,6 @@ window.WEDDING_CONFIG = {
   },
 
   rsvp: {
-    // Paste a Formspree / Netlify Forms / Google Apps Script URL here when ready.
-    // Leave blank to use the mailto: fallback below.
     endpoint: "https://script.google.com/macros/s/AKfycbyNrojWeAjwX3EIVjekhBWmr0R36LrOBDJhCDY6w85-VotAz4aARknxKOQJggAh05Vi/exec",
     mailtoAddress: "you@example.com"
   }

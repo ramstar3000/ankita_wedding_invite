@@ -4,20 +4,6 @@
 (function () {
   function buildPayload() {
     const s = window.RSVP.state;
-    const cfg = window.WEDDING_CONFIG;
-
-    const eventNameById = Object.fromEntries(cfg.events.map((e) => [e.id, e.name]));
-    const foodById = Object.fromEntries(cfg.foodEvents.map((f) => [f.id, f]));
-
-    const attendingEventIds =
-      s.scope === "whole" ? cfg.events.map((e) => e.id) : s.selectedEventIds;
-
-    const attendingEvents = attendingEventIds.map((id) => eventNameById[id]).filter(Boolean);
-
-    const foodSummary = Object.entries(s.foodChoices).map(([fid, choice]) => {
-      const f = foodById[fid];
-      return { meal: f ? f.label : fid, choice };
-    });
 
     return {
       submittedAt: s.submittedAt || new Date().toISOString(),
@@ -26,39 +12,40 @@
       partySize: s.partySize || 1,
       partyNames: (s.partyNames || []).filter(function (n) { return n && n.length; }),
       attending: s.attending,
-      scope: s.scope,
-      attendingEvents,
-      foodChoices: foodSummary,
-      accommodation: s.accommodation,
-      notes: s.notes
+      eventCounts: s.eventCounts || {},                              // { [eventId]: number }
+      allergies: s.allergies || "",
+      email: s.email || "",
+      phone: s.phone || ""
     };
   }
 
   function asText(payload) {
+    const cfg = window.WEDDING_CONFIG || {};
+    const eventNameById = Object.fromEntries((cfg.events || []).map((e) => [e.id, e.name]));
     const sideLabel = payload.side === "bride" ? "Bride's side"
                     : payload.side === "groom" ? "Groom's side"
                     : "—";
     const lines = [
       `Name: ${payload.name || "(not provided)"}`,
       `Side: ${sideLabel}`,
-      `Party size: ${payload.partySize}`,
+      `Party size: ${payload.partySize}`
     ];
     if (payload.partyNames && payload.partyNames.length) {
       lines.push(`Others joining: ${payload.partyNames.join(", ")}`);
     }
     lines.push(`Attending: ${payload.attending === true ? "Yes" : payload.attending === false ? "No" : "—"}`);
     if (payload.attending) {
-      lines.push(`Scope: ${payload.scope || "—"}`);
-      if (payload.attendingEvents.length) {
-        lines.push(`Events: ${payload.attendingEvents.join(", ")}`);
+      const entries = Object.entries(payload.eventCounts || {});
+      if (entries.length) {
+        lines.push("Per event:");
+        entries.forEach(([id, count]) => {
+          lines.push(`  - ${eventNameById[id] || id}: ${count} attending`);
+        });
       }
-      if (payload.foodChoices.length) {
-        lines.push("Food:");
-        payload.foodChoices.forEach((f) => lines.push(`  - ${f.meal}: ${f.choice}`));
-      }
-      if (payload.accommodation) lines.push(`Accommodation: ${payload.accommodation}`);
+      if (payload.allergies) lines.push(`Allergies / food notes: ${payload.allergies}`);
     }
-    if (payload.notes) lines.push(`Notes: ${payload.notes}`);
+    if (payload.email) lines.push(`Email: ${payload.email}`);
+    if (payload.phone) lines.push(`Phone: ${payload.phone}`);
     lines.push(`Submitted: ${payload.submittedAt}`);
     return lines.join("\n");
   }

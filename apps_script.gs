@@ -28,6 +28,8 @@
 // Append-only column order. New fields go at the end so existing rows stay
 // aligned when the script is re-deployed onto a Sheet with older data.
 const HEADERS = [
+  // Original columns — kept for back-compat with rows submitted before the
+  // 2026 restructure. New submissions write empty strings into these.
   'submittedAt',
   'name',
   'attending',
@@ -39,7 +41,12 @@ const HEADERS = [
   'rawPayload',
   'side',
   'partySize',
-  'partyNames'
+  'partyNames',
+  // New columns — per-event counts + allergies + contact details.
+  'eventCounts',
+  'allergies',
+  'email',
+  'phone'
 ];
 
 function doPost(e) {
@@ -81,7 +88,12 @@ function handleSubmit(body) {
     JSON.stringify(body),
     sideLabel,
     body.partySize || 1,
-    Array.isArray(body.partyNames) ? body.partyNames.join(', ') : ''
+    Array.isArray(body.partyNames) ? body.partyNames.join(', ') : '',
+    body.eventCounts && typeof body.eventCounts === 'object'
+      ? JSON.stringify(body.eventCounts) : '',
+    body.allergies || '',
+    body.email || '',
+    body.phone || ''
   ]);
 
   return jsonOut({ ok: true });

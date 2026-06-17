@@ -182,6 +182,10 @@ p { margin: 8px 0 16px; }
   margin-bottom: 6px;
 }
 .field input[type="text"],
+.field input[type="email"],
+.field input[type="tel"],
+.field input[type="number"],
+.field input[type="password"],
 .field textarea {
   width: 100%;
   font: inherit;
@@ -241,23 +245,129 @@ p { margin: 8px 0 16px; }
 .choice-title { font-weight: 500; }
 .choice-meta { font-size: 0.85rem; color: var(--ink-soft); }
 
-/* ---- Food blocks -------------------------------------------------------- */
+/* ---- Brand band (logo across pages) ------------------------------------ */
 
-.food-block {
+.brand-band {
+  text-align: center;
+  padding: 18px 16px 4px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.brand-link { display: inline-block; line-height: 0; }
+.brand-logo {
+  max-width: 120px;
+  max-height: 64px;
+  height: auto;
+  width: auto;
+  opacity: 0.92;
+}
+@media (min-width: 640px) {
+  .brand-band { padding-top: 28px; }
+  .brand-logo { max-width: 140px; max-height: 76px; }
+}
+
+/* ---- QR block (cover) -------------------------------------------------- */
+
+.qr-block {
+  margin: 28px auto 8px;
+  max-width: 220px;
+  text-align: center;
+}
+.qr-img {
+  width: 180px;
+  height: 180px;
+  display: block;
+  margin: 0 auto;
+  padding: 10px;
+  background: #fffdfa;
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 14px 14px 8px;
-  margin: 14px 0;
-  background: #fffdfa;
 }
-.food-block legend {
-  padding: 0 6px;
-  font-family: var(--serif);
-  font-size: 1.1rem;
+.qr-caption {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+/* ---- Event step -------------------------------------------------------- */
+
+.event-step-pos {
+  margin: 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
   color: var(--accent-dark);
 }
-.food-block .choice {
-  margin: 6px 0;
+.event-description {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  color: var(--ink);
+  margin: 8px 0 16px;
+}
+.event-info { margin-bottom: 8px; }
+#event-count {
+  width: 100%;
+  font: inherit;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fffdfa;
+  color: var(--ink);
+}
+#event-count:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+#event-count-hint { display: block; margin-top: 6px; }
+
+/* ---- Thank-you summary ------------------------------------------------- */
+
+.summary-card {
+  text-align: left;
+  background: #fffdfa;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin: 20px 0 16px;
+}
+.summary-heading {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  color: var(--accent-dark);
+  margin: 0 0 10px;
+  font-weight: 500;
+}
+.summary-list { margin: 0; }
+.summary-list dt {
+  font-weight: 600;
+  color: var(--ink);
+  margin-top: 8px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.summary-list dt:first-child { margin-top: 0; }
+.summary-list dd {
+  margin: 2px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.98rem;
+}
+
+/* ---- Results: allergies/notes list ------------------------------------- */
+
+.results-notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.results-notes-item {
+  background: #fffdfa;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.92rem;
+}
+.results-notes-name {
+  font-weight: 600;
+  color: var(--accent-dark);
+  margin-right: 6px;
 }
 
 /* ---- Info blocks (travel, etc.) ---------------------------------------- */
