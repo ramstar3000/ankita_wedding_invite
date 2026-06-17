@@ -2,7 +2,7 @@
 // Guards bounce users back if they jump to a step whose prerequisites are unmet.
 
 (function () {
-  const STEPS = ["cover", "rsvp", "scope", "events", "food", "accommodation", "thanks", "gift", "results"];
+  const STEPS = ["cover", "rsvp", "scope", "events", "food", "accommodation", "thanks", "gift", "results", "travel"];
   const DEFAULT_STEP = "cover";
 
   function currentStep() {

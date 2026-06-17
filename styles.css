@@ -260,6 +260,42 @@ p { margin: 8px 0 16px; }
   margin: 6px 0;
 }
 
+/* ---- Info blocks (travel, etc.) ---------------------------------------- */
+
+.info-block {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  margin-top: 14px;
+}
+.info-block:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 4px;
+}
+
+.info-heading {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  color: var(--accent-dark);
+  margin: 0 0 6px;
+  font-weight: 500;
+}
+
+.info-dl {
+  margin: 0;
+}
+.info-dl dt {
+  font-weight: 600;
+  color: var(--ink);
+  margin-top: 10px;
+}
+.info-dl dt:first-child { margin-top: 0; }
+.info-dl dd {
+  margin: 4px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
 /* ---- Misc --------------------------------------------------------------- */
 
 .bank-block {

@@ -33,6 +33,7 @@
         <div class="cover-actions">
           <button id="cover-rsvp-btn" class="btn btn-primary">RSVP</button>
           <a id="cover-invitation-link" class="btn btn-outline" target="_blank" rel="noopener" hidden>View your invitation</a>
+          <a id="cover-travel-link" class="btn btn-outline" href="#travel">Travel &amp; arrival</a>
         </div>
         <p class="cover-footnote">
           Can't make it? <a id="cover-gift-link" href="#gift">See the gift register</a>
@@ -178,6 +179,39 @@
           <button id="results-refresh" class="btn btn-outline">Refresh</button>
           <button id="results-back" class="btn btn-ghost">Back to invite</button>
         </div>
+      </div>
+    </section>
+
+    <!-- Travel & arrival (info page, reachable from cover) -->
+    <section data-step="travel" class="step" hidden>
+      <h2>Travel &amp; arrival</h2>
+
+      <div class="info-block">
+        <h3 class="info-heading">Nearest airport</h3>
+        <p id="travel-airport-name"></p>
+        <p class="muted small" id="travel-airport-note"></p>
+      </div>
+
+      <div class="info-block">
+        <h3 class="info-heading">When to arrive</h3>
+        <p id="travel-arrival"></p>
+        <p id="travel-departure"></p>
+      </div>
+
+      <div class="info-block">
+        <h3 class="info-heading">Getting to Sambrama</h3>
+        <dl id="travel-transport" class="info-dl"></dl>
+      </div>
+
+      <div class="info-block" id="travel-visa-block">
+        <h3 class="info-heading" id="travel-visa-heading"></h3>
+        <p id="travel-visa-body"></p>
+      </div>
+
+      <p class="muted small" id="travel-notes"></p>
+
+      <div class="btn-row">
+        <button id="travel-back" class="btn btn-ghost">Back to invite</button>
       </div>
     </section>
 

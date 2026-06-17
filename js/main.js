@@ -183,6 +183,38 @@
     notes.oninput = () => set({ notes: notes.value });
   }
 
+  function renderTravel() {
+    const t = cfg.travel || {};
+    $("#travel-airport-name").textContent = (t.airport && t.airport.name) || "";
+    $("#travel-airport-note").textContent = (t.airport && t.airport.note) || "";
+    $("#travel-arrival").textContent = (t.arrival && t.arrival.suggested) || "";
+    $("#travel-departure").textContent = (t.arrival && t.arrival.departure) || "";
+
+    const dl = $("#travel-transport");
+    dl.innerHTML = "";
+    (t.transport || []).forEach((row) => {
+      const dt = document.createElement("dt");
+      dt.textContent = row.label;
+      const dd = document.createElement("dd");
+      dd.textContent = row.description;
+      dl.appendChild(dt);
+      dl.appendChild(dd);
+    });
+
+    const visaBlock = $("#travel-visa-block");
+    if (t.visa && t.visa.body) {
+      $("#travel-visa-heading").textContent = t.visa.heading || "Visa";
+      $("#travel-visa-body").textContent = t.visa.body;
+      visaBlock.hidden = false;
+    } else {
+      visaBlock.hidden = true;
+    }
+
+    const notes = $("#travel-notes");
+    if (t.notes) { notes.textContent = t.notes; notes.hidden = false; }
+    else { notes.hidden = true; }
+  }
+
   function renderGift() {
     $("#gift-message").textContent = cfg.gifts.message || "";
 
@@ -687,6 +719,8 @@
       window.ROUTER.go(state.submittedAt ? "thanks" : "cover");
     });
 
+    $("#travel-back").addEventListener("click", () => window.ROUTER.go("cover"));
+
     $("#results-view-btn").addEventListener("click", () => {
       const pwd = $("#results-password").value;
       if (!pwd) return;
@@ -713,6 +747,7 @@
       case "accommodation": renderAccommodation(); break;
       case "thanks": renderThanks(); break;
       case "gift": renderGift(); break;
+      case "travel": renderTravel(); break;
       case "results": renderResults(); break;
     }
   });
