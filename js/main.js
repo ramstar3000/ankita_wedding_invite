@@ -291,6 +291,100 @@
     return { records, totals, eventCounts, mealCounts, accomCounts };
   }
 
+  // ---- Pie chart helpers --------------------------------------------------
+
+  const SVG_NS = "http://www.w3.org/2000/svg";
+
+  function pieSlicePath(cx, cy, r, startAngle, endAngle) {
+    // Full-circle slice: draw as two arcs so the SVG path is valid.
+    if (endAngle - startAngle >= Math.PI * 2 - 1e-6) {
+      return `M ${cx} ${cy - r} A ${r} ${r} 0 1 1 ${cx - 0.001} ${cy - r} Z`;
+    }
+    const x1 = cx + r * Math.cos(startAngle);
+    const y1 = cy + r * Math.sin(startAngle);
+    const x2 = cx + r * Math.cos(endAngle);
+    const y2 = cy + r * Math.sin(endAngle);
+    const large = endAngle - startAngle > Math.PI ? 1 : 0;
+    return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`;
+  }
+
+  function makePie(segments, size) {
+    const total = segments.reduce((s, x) => s + (x.value > 0 ? x.value : 0), 0);
+    const svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+    svg.setAttribute("width", size);
+    svg.setAttribute("height", size);
+    svg.setAttribute("class", "pie");
+
+    if (total === 0) {
+      const c = document.createElementNS(SVG_NS, "circle");
+      c.setAttribute("cx", size / 2);
+      c.setAttribute("cy", size / 2);
+      c.setAttribute("r", size / 2 - 1);
+      c.setAttribute("fill", "#f4e6d5");
+      svg.appendChild(c);
+      return svg;
+    }
+
+    const cx = size / 2, cy = size / 2, r = size / 2 - 1;
+    let angle = -Math.PI / 2;
+    segments.forEach((seg) => {
+      if (seg.value <= 0) return;
+      const next = angle + (seg.value / total) * 2 * Math.PI;
+      const path = document.createElementNS(SVG_NS, "path");
+      path.setAttribute("d", pieSlicePath(cx, cy, r, angle, next));
+      path.setAttribute("fill", seg.color);
+      svg.appendChild(path);
+      angle = next;
+    });
+    return svg;
+  }
+
+  function makePieWithLegend(title, segments, size = 130) {
+    const wrap = document.createElement("div");
+    wrap.className = "pie-card";
+
+    const heading = document.createElement("div");
+    heading.className = "pie-title";
+    heading.textContent = title;
+    wrap.appendChild(heading);
+
+    const total = segments.reduce((s, x) => s + (x.value > 0 ? x.value : 0), 0);
+
+    if (total === 0) {
+      const empty = document.createElement("p");
+      empty.className = "muted small";
+      empty.textContent = "No data yet.";
+      wrap.appendChild(empty);
+      return wrap;
+    }
+
+    const row = document.createElement("div");
+    row.className = "pie-row-wrap";
+    row.appendChild(makePie(segments, size));
+
+    const legend = document.createElement("div");
+    legend.className = "pie-legend";
+    segments.forEach((seg) => {
+      if (seg.value <= 0) return;
+      const pct = Math.round((seg.value / total) * 100);
+      const item = document.createElement("div");
+      item.className = "pie-legend-item";
+      item.innerHTML = `
+        <span class="pie-swatch" style="background:${seg.color}"></span>
+        <span class="pie-legend-label">${seg.label}</span>
+        <span class="pie-legend-value">${seg.value} <span class="pie-pct">${pct}%</span></span>
+      `;
+      legend.appendChild(item);
+    });
+    row.appendChild(legend);
+    wrap.appendChild(row);
+    return wrap;
+  }
+
+  // Stable palette for accommodation / overflow categories.
+  const PIE_PALETTE = ["#b25a6b", "#d8a48f", "#e7c397", "#8a9d8c", "#7d8aa4", "#c2829a"];
+
   function card(value, label) {
     const el = document.createElement("div");
     el.className = "results-card";
@@ -334,6 +428,27 @@
     cards.appendChild(card(data.totals.heads, "heads total"));
     cards.appendChild(card(data.totals.brideSide, "bride's side"));
     cards.appendChild(card(data.totals.groomSide, "groom's side"));
+
+    // Pies
+    const pies = $("#results-pies");
+    pies.innerHTML = "";
+
+    pies.appendChild(makePieWithLegend("Attending", [
+      { label: "Yes", value: data.totals.yes, color: "#2a7a45" },
+      { label: "No",  value: data.totals.no,  color: "#a23b3b" }
+    ]));
+
+    pies.appendChild(makePieWithLegend("Which side", [
+      { label: "Bride's",  value: data.totals.brideSide, color: "#b25a6b" },
+      { label: "Groom's",  value: data.totals.groomSide, color: "#7d8aa4" }
+    ]));
+
+    const accomSegments = Object.entries(data.accomCounts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([label, value], i) => ({
+        label, value, color: PIE_PALETTE[i % PIE_PALETTE.length]
+      }));
+    pies.appendChild(makePieWithLegend("Accommodation", accomSegments));
 
     // Per-event attendance — order by cfg.events when possible, append unknowns.
     const eventList = $("#results-events");
