@@ -69,6 +69,10 @@ window.WEDDING_CONFIG = {
       "Your presence at the wedding is more than enough. If you'd still like to mark " +
       "the occasion with a gift, a few options below — please don't feel obliged.",
     registryLinks: [],
+    // GPay QR shown alongside the bank details once the guest opts in.
+    // Replace assets/gpay-qr.svg with the real QR (PNG/SVG both fine), or
+    // leave blank to hide the QR block.
+    gpayQrSrc: "./assets/gpay-qr.svg",
     bankDetails:
       "GPay:    TBC\n" +
       "UPI ID:  ankita-shyam@TBC\n" +
