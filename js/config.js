@@ -34,6 +34,8 @@ window.WEDDING_CONFIG = {
       name: "Nischayatartham & Haldi",
       date: "Thu 19 Nov",
       time: "8:00 am – 1:30 pm",
+      startISO: "2026-11-19T08:00:00+05:30",
+      endISO:   "2026-11-19T13:30:00+05:30",
       meals: "Breakfast and lunch",
       dressCode: "Traditional Indian wear in cheerful festive tones — bright yellows, oranges, mustard, and marigold hues.",
       description: "Join us for the Engagement and Haldi ceremonies as we seek blessings and celebrate the beginning of our wedding festivities."
@@ -43,6 +45,8 @@ window.WEDDING_CONFIG = {
       name: "Baraat & Reception",
       date: "Thu 19 Nov",
       time: "5:00 pm onwards",
+      startISO: "2026-11-19T17:00:00+05:30",
+      endISO:   "2026-11-19T23:00:00+05:30",
       meals: "Snacks and dinner",
       dressCode: "Formal, glamorous festive attire — dress to impress in your finest sarees, lehengas, sherwanis, or suits in vibrant celebratory colours.",
       description: "Celebrate with us as the groom's procession arrives, followed by an evening of music, joy, and warm wishes from family and friends."
@@ -52,6 +56,8 @@ window.WEDDING_CONFIG = {
       name: "Wedding ceremony",
       date: "Fri 20 Nov",
       time: "5:00 am onwards",
+      startISO: "2026-11-20T05:00:00+05:30",
+      endISO:   "2026-11-20T12:00:00+05:30",
       meals: "Breakfast and lunch",
       dressCode: "Traditional South Indian attire — silk sarees, veshti/dhoti, or elegant ethnic wear in classic tones.",
       description: "Witness the sacred South Indian wedding ceremony featuring timeless rituals and countless blessings in the presence of our loved ones."

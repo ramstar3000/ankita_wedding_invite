@@ -280,6 +280,150 @@
     }
   }
 
+  // ---- Download helpers (summary + iCal) --------------------------------
+
+  function downloadBlob(filename, mime, content) {
+    const blob = new Blob([content], { type: mime + ";charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+
+  function pad2(n) { return String(n).padStart(2, "0"); }
+
+  function toUtcStamp(iso) {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    return d.getUTCFullYear() +
+      pad2(d.getUTCMonth() + 1) +
+      pad2(d.getUTCDate()) + "T" +
+      pad2(d.getUTCHours()) +
+      pad2(d.getUTCMinutes()) +
+      pad2(d.getUTCSeconds()) + "Z";
+  }
+
+  function icsEscape(s) {
+    return String(s == null ? "" : s)
+      .replace(/\\/g, "\\\\")
+      .replace(/\r\n|\r|\n/g, "\\n")
+      .replace(/,/g, "\\,")
+      .replace(/;/g, "\\;");
+  }
+
+  // Build an .ics covering the events the guest ticked at least one person for.
+  // Each VEVENT gets summary, location (venue+address), and a description that
+  // bundles the dress code + meals + Maps link so calendar reminders are useful.
+  function buildIcs(includeEventIds) {
+    const venue = cfg.venue || {};
+    const locParts = [venue.name, venue.address].filter(Boolean);
+    const location = locParts.join(", ");
+    const mapUrl = venue.mapUrl || "";
+    const stamp = toUtcStamp(new Date().toISOString());
+
+    const lines = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Ankita & Shyam Wedding//EN",
+      "CALSCALE:GREGORIAN",
+      "METHOD:PUBLISH"
+    ];
+
+    (cfg.events || []).forEach((ev) => {
+      if (!includeEventIds.includes(ev.id)) return;
+      if (!ev.startISO || !ev.endISO) return;
+      const descParts = [];
+      if (ev.description) descParts.push(ev.description);
+      if (ev.meals) descParts.push("Meals: " + ev.meals);
+      if (ev.dressCode) descParts.push("Dress code: " + ev.dressCode);
+      if (mapUrl) descParts.push("Map: " + mapUrl);
+
+      lines.push("BEGIN:VEVENT");
+      lines.push("UID:" + ev.id + "-2026@ankita-shyam.wedding");
+      lines.push("DTSTAMP:" + stamp);
+      lines.push("DTSTART:" + toUtcStamp(ev.startISO));
+      lines.push("DTEND:" + toUtcStamp(ev.endISO));
+      lines.push("SUMMARY:" + icsEscape(ev.name + " — Ankita & Shyam"));
+      if (location) lines.push("LOCATION:" + icsEscape(location));
+      lines.push("DESCRIPTION:" + icsEscape(descParts.join("\n")));
+      lines.push("END:VEVENT");
+    });
+
+    lines.push("END:VCALENDAR");
+    return lines.join("\r\n");
+  }
+
+  function buildSummaryText() {
+    const s = window.RSVP.state;
+    const members = partyMembers();
+    const memberNameByIndex = Object.fromEntries(members.map((m) => [m.index, m.name]));
+    const venue = cfg.venue || {};
+
+    const sideLabel = s.side === "bride" ? "Bride's side"
+                    : s.side === "groom" ? "Groom's side"
+                    : "—";
+
+    const lines = [
+      "Ankita & Shyam — Wedding RSVP confirmation",
+      "Submitted: " + (s.submittedAt ? new Date(s.submittedAt).toLocaleString() : ""),
+      "",
+      "Lead guest: " + (s.name || "(not provided)") + " (" + sideLabel + ")",
+      "Party size: " + (s.partySize || 1),
+      "Party names: " + members.map((m) => m.name).join(", "),
+      ""
+    ];
+
+    if (s.attending === false) {
+      lines.push("Reply: Sadly cannot make it");
+    } else {
+      lines.push("Reply: Attending");
+      lines.push("");
+      lines.push("Events:");
+      (cfg.events || []).forEach((ev) => {
+        const indices = Array.isArray(s.eventAttendees[ev.id])
+          ? s.eventAttendees[ev.id].filter((i) => memberNameByIndex[i] != null)
+          : [];
+        const names = indices.map((i) => memberNameByIndex[i]);
+        lines.push("");
+        lines.push("  " + ev.name);
+        lines.push("    When:       " + [ev.date, ev.time].filter(Boolean).join(", "));
+        if (ev.meals) lines.push("    Meals:      " + ev.meals);
+        if (ev.dressCode) lines.push("    Dress code: " + ev.dressCode);
+        lines.push("    Attending:  " + (names.length ? names.join(", ") + " (" + names.length + ")" : "No one"));
+      });
+      if (s.allergies) {
+        lines.push("");
+        lines.push("Allergies / food notes: " + s.allergies);
+      }
+    }
+
+    lines.push("");
+    lines.push("Venue: " + (venue.name || ""));
+    if (venue.address) lines.push("       " + venue.address);
+    if (venue.mapUrl)  lines.push("Map:   " + venue.mapUrl);
+    if (s.email) {
+      lines.push("");
+      lines.push("Contact email on file: " + s.email);
+    }
+    if (s.phone) lines.push("Contact phone on file: " + s.phone);
+
+    return lines.join("\n");
+  }
+
+  function attendingEventIds() {
+    const s = window.RSVP.state;
+    const out = [];
+    (cfg.events || []).forEach((ev) => {
+      const arr = s.eventAttendees[ev.id];
+      if (Array.isArray(arr) && arr.length > 0) out.push(ev.id);
+    });
+    return out;
+  }
+
   // ---- Thanks ------------------------------------------------------------
 
   function renderThanks() {
@@ -292,11 +436,20 @@
     const list = $("#thanks-summary-list");
     const emailNote = $("#thanks-email-note");
 
+    const downloads = $("#thanks-downloads");
+    const icsBtn = $("#thanks-download-ics");
+
     if (!state.attending) {
       summary.hidden = true;
       emailNote.hidden = true;
+      // Non-attendees still get the summary download (a receipt of their reply).
+      // No iCal — nothing to add to the calendar.
+      downloads.hidden = false;
+      icsBtn.hidden = true;
       return;
     }
+    downloads.hidden = false;
+    icsBtn.hidden = false;
 
     list.innerHTML = "";
 
@@ -822,6 +975,21 @@
     $("#thanks-gift-link").addEventListener("click", (e) => {
       e.preventDefault();
       window.ROUTER.go("gift");
+    });
+
+    $("#thanks-download-summary").addEventListener("click", () => {
+      const name = (state.name || "guest").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+      downloadBlob(`rsvp-${name}.txt`, "text/plain", buildSummaryText());
+    });
+
+    $("#thanks-download-ics").addEventListener("click", () => {
+      const ids = attendingEventIds();
+      if (ids.length === 0) {
+        alert("No events are ticked, so there's nothing to add to the calendar.");
+        return;
+      }
+      const ics = buildIcs(ids);
+      downloadBlob("ankita-shyam-wedding.ics", "text/calendar", ics);
     });
 
     $("#gift-back").addEventListener("click", () => {
