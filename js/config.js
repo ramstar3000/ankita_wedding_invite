@@ -48,7 +48,7 @@ window.WEDDING_CONFIG = {
   rsvp: {
     // Paste a Formspree / Netlify Forms / Google Apps Script URL here when ready.
     // Leave blank to use the mailto: fallback below.
-    endpoint: "",
+    endpoint: "https://script.google.com/macros/s/AKfycbyNrojWeAjwX3EIVjekhBWmr0R36LrOBDJhCDY6w85-VotAz4aARknxKOQJggAh05Vi/exec",
     mailtoAddress: "you@example.com"
   }
 };
