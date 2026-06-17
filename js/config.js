@@ -8,9 +8,9 @@ window.WEDDING_CONFIG = {
   },
   date: "18th – 20th November (TBC)",
   venue: {
-    name: "Sambrama (TBC)",
-    address: "Bangalore, India",
-    mapUrl: ""
+    name: "Sambrama by Swanlines",
+    address: "No 107 & 108, Thittahalli Rd, Kaggalipura, Bengaluru, Karnataka 560082",
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Sambrama+by+Swanlines+Kaggalipura+Bengaluru"
   },
 
   // Path or URL to the invitation card PDF. When set, a 'View your invitation'
