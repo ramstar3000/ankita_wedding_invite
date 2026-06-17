@@ -221,34 +221,218 @@
     }
   }
 
-  function renderResultsTable(headers, rows) {
+  // ---- Results aggregation + render ---------------------------------------
+
+  function parseFoodChoices(str) {
+    if (!str) return [];
+    return String(str).split(";").map((s) => s.trim()).filter(Boolean).map((s) => {
+      const i = s.indexOf(":");
+      return i === -1
+        ? { meal: s, choice: "" }
+        : { meal: s.slice(0, i).trim(), choice: s.slice(i + 1).trim() };
+    });
+  }
+
+  function aggregate(headers, rows) {
+    const idx = {};
+    headers.forEach((h, i) => { idx[String(h)] = i; });
+
+    const get = (row, key) => (key in idx ? row[idx[key]] : "");
+
+    const records = rows.map((row) => ({
+      submittedAt: get(row, "submittedAt"),
+      name: String(get(row, "name") || ""),
+      attending: String(get(row, "attending") || ""),
+      scope: String(get(row, "scope") || ""),
+      attendingEvents: String(get(row, "attendingEvents") || "")
+        .split(",").map((s) => s.trim()).filter(Boolean),
+      foodChoices: parseFoodChoices(get(row, "foodChoices")),
+      accommodation: String(get(row, "accommodation") || ""),
+      notes: String(get(row, "notes") || ""),
+      side: String(get(row, "side") || ""),
+      partySize: Math.max(1, Number(get(row, "partySize")) || 1)
+    }));
+
+    const yes = records.filter((r) => r.attending === "Yes");
+    const no = records.filter((r) => r.attending === "No");
+
+    const totals = {
+      responses: records.length,
+      yes: yes.length,
+      no: no.length,
+      heads: yes.reduce((s, r) => s + r.partySize, 0),
+      brideSide: records.filter((r) => /^Bride/.test(r.side)).length,
+      groomSide: records.filter((r) => /^Groom/.test(r.side)).length
+    };
+
+    const eventCounts = {};
+    yes.forEach((r) => {
+      r.attendingEvents.forEach((ev) => {
+        eventCounts[ev] = (eventCounts[ev] || 0) + r.partySize;
+      });
+    });
+
+    const mealCounts = {}; // { mealLabel: { choice: count } }
+    yes.forEach((r) => {
+      r.foodChoices.forEach(({ meal, choice }) => {
+        if (!meal) return;
+        mealCounts[meal] = mealCounts[meal] || {};
+        const key = choice || "(no choice)";
+        mealCounts[meal][key] = (mealCounts[meal][key] || 0) + r.partySize;
+      });
+    });
+
+    const accomCounts = {};
+    yes.forEach((r) => {
+      if (!r.accommodation) return;
+      accomCounts[r.accommodation] = (accomCounts[r.accommodation] || 0) + r.partySize;
+    });
+
+    return { records, totals, eventCounts, mealCounts, accomCounts };
+  }
+
+  function card(value, label) {
+    const el = document.createElement("div");
+    el.className = "results-card";
+    el.innerHTML = `<div class="results-card-value">${value}</div>
+                    <div class="results-card-label">${label}</div>`;
+    return el;
+  }
+
+  function barRow(label, count, max) {
+    const pct = max > 0 ? Math.round((count / max) * 100) : 0;
+    const el = document.createElement("div");
+    el.className = "results-bar";
+    el.innerHTML = `
+      <div class="results-bar-head">
+        <span class="results-bar-label">${label}</span>
+        <span class="results-bar-count">${count}</span>
+      </div>
+      <div class="results-bar-track"><div class="results-bar-fill" style="width:${pct}%"></div></div>
+    `;
+    return el;
+  }
+
+  function fmtDate(v) {
+    if (!v) return "";
+    const d = v instanceof Date ? v : new Date(v);
+    if (isNaN(d.getTime())) return String(v);
+    return d.toLocaleString(undefined, {
+      day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"
+    });
+  }
+
+  function renderResultsDashboard(headers, rows) {
+    const data = aggregate(headers, rows);
+
+    // Headline cards
+    const cards = $("#results-cards");
+    cards.innerHTML = "";
+    cards.appendChild(card(data.totals.responses, "responses"));
+    cards.appendChild(card(data.totals.yes, "attending"));
+    cards.appendChild(card(data.totals.no, "regrets"));
+    cards.appendChild(card(data.totals.heads, "heads total"));
+    cards.appendChild(card(data.totals.brideSide, "bride's side"));
+    cards.appendChild(card(data.totals.groomSide, "groom's side"));
+
+    // Per-event attendance — order by cfg.events when possible, append unknowns.
+    const eventList = $("#results-events");
+    eventList.innerHTML = "";
+    const eventOrder = (cfg.events || []).map((e) => e.name);
+    const knownInOrder = eventOrder.filter((n) => data.eventCounts[n] != null);
+    const unknown = Object.keys(data.eventCounts).filter((n) => !eventOrder.includes(n));
+    const orderedEventNames = knownInOrder.concat(unknown);
+    const maxEvent = Math.max(1, ...Object.values(data.eventCounts));
+    if (orderedEventNames.length === 0) {
+      eventList.innerHTML = `<p class="muted small">No 'yes' responses yet.</p>`;
+    } else {
+      orderedEventNames.forEach((name) => {
+        eventList.appendChild(barRow(name, data.eventCounts[name], maxEvent));
+      });
+    }
+
+    // Food preferences — group by meal, then list choices.
+    const mealList = $("#results-meals");
+    mealList.innerHTML = "";
+    const mealOrder = (cfg.foodEvents || []).map((m) => m.label);
+    const mealsInOrder = mealOrder.filter((n) => data.mealCounts[n] != null);
+    const extraMeals = Object.keys(data.mealCounts).filter((n) => !mealOrder.includes(n));
+    const allMeals = mealsInOrder.concat(extraMeals);
+    if (allMeals.length === 0) {
+      mealList.innerHTML = `<p class="muted small">No food choices yet.</p>`;
+    } else {
+      allMeals.forEach((mealName) => {
+        const block = document.createElement("div");
+        block.className = "results-meal-block";
+        const choices = data.mealCounts[mealName];
+        const total = Object.values(choices).reduce((a, b) => a + b, 0);
+        const pills = Object.entries(choices)
+          .sort((a, b) => b[1] - a[1])
+          .map(([choice, n]) => `<span class="pill">${choice} · <strong>${n}</strong></span>`)
+          .join("");
+        block.innerHTML = `
+          <div class="results-meal-head">
+            <span class="results-meal-name">${mealName}</span>
+            <span class="results-bar-count">${total}</span>
+          </div>
+          <div class="pill-row">${pills}</div>
+        `;
+        mealList.appendChild(block);
+      });
+    }
+
+    // Accommodation
+    const accomList = $("#results-accommodation");
+    accomList.innerHTML = "";
+    const accomNames = Object.keys(data.accomCounts);
+    const maxAccom = Math.max(1, ...Object.values(data.accomCounts));
+    if (accomNames.length === 0) {
+      accomList.innerHTML = `<p class="muted small">No accommodation choices yet.</p>`;
+    } else {
+      accomNames.sort((a, b) => data.accomCounts[b] - data.accomCounts[a]).forEach((name) => {
+        accomList.appendChild(barRow(name, data.accomCounts[name], maxAccom));
+      });
+    }
+
+    // All-responses table (compact, key columns only, newest first)
     const table = $("#results-table");
     table.innerHTML = "";
-
+    const tableHeaders = ["When", "Name", "Side", "Size", "Status", "Events"];
     const thead = document.createElement("thead");
-    const headRow = document.createElement("tr");
-    headers.forEach((h) => {
+    const trh = document.createElement("tr");
+    tableHeaders.forEach((h) => {
       const th = document.createElement("th");
-      th.textContent = String(h);
-      headRow.appendChild(th);
+      th.textContent = h;
+      trh.appendChild(th);
     });
-    thead.appendChild(headRow);
+    thead.appendChild(trh);
     table.appendChild(thead);
 
     const tbody = document.createElement("tbody");
-    rows.forEach((row) => {
+    const sorted = data.records.slice().sort((a, b) => {
+      const da = new Date(a.submittedAt).getTime() || 0;
+      const db = new Date(b.submittedAt).getTime() || 0;
+      return db - da;
+    });
+    sorted.forEach((r) => {
       const tr = document.createElement("tr");
-      row.forEach((cell) => {
+      const cells = [
+        fmtDate(r.submittedAt),
+        r.name || "—",
+        r.side.replace("'s side", "") || "—",
+        String(r.partySize),
+        r.attending || "—",
+        r.attendingEvents.length ? r.attendingEvents.join(", ") : "—"
+      ];
+      cells.forEach((c, i) => {
         const td = document.createElement("td");
-        td.textContent = cell == null ? "" : String(cell);
+        td.textContent = c;
+        if (i === 4) td.className = "status-" + c.toLowerCase();
         tr.appendChild(td);
       });
       tbody.appendChild(tr);
     });
     table.appendChild(tbody);
-
-    $("#results-summary").textContent =
-      `${rows.length} ${rows.length === 1 ? "response" : "responses"}`;
 
     $("#results-auth").hidden = true;
     $("#results-data").hidden = false;
@@ -276,7 +460,7 @@
         return;
       }
       sessionStorage.setItem("ankita_results_pwd", password);
-      renderResultsTable(data.headers || [], data.rows || []);
+      renderResultsDashboard(data.headers || [], data.rows || []);
     } catch (err) {
       showResultsAuth("Network error — " + err.message);
     } finally {

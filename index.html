@@ -145,10 +145,30 @@
         <p id="results-error" class="muted small" hidden></p>
       </div>
       <div id="results-data" hidden>
-        <p id="results-summary" class="muted small"></p>
-        <div class="results-table-wrap">
-          <table id="results-table"></table>
-        </div>
+        <div class="results-cards" id="results-cards"></div>
+
+        <details class="results-section" open>
+          <summary>Per-event attendance</summary>
+          <div id="results-events" class="results-bar-list"></div>
+        </details>
+
+        <details class="results-section" open>
+          <summary>Food preferences</summary>
+          <div id="results-meals" class="results-meal-list"></div>
+        </details>
+
+        <details class="results-section" open>
+          <summary>Accommodation requests</summary>
+          <div id="results-accommodation" class="results-bar-list"></div>
+        </details>
+
+        <details class="results-section">
+          <summary>All responses (newest first)</summary>
+          <div class="results-table-wrap">
+            <table id="results-table"></table>
+          </div>
+        </details>
+
         <div class="btn-row">
           <button id="results-refresh" class="btn btn-outline">Refresh</button>
           <button id="results-back" class="btn btn-ghost">Back to invite</button>
