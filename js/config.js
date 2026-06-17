@@ -70,6 +70,7 @@ window.WEDDING_CONFIG = {
       "the occasion with a gift, a few options below — please don't feel obliged.",
     registryLinks: [],
     bankDetails:
+      "GPay:    TBC\n" +
       "UPI ID:  ankita-shyam@TBC\n" +
       "Bank transfer (India):\n" +
       "  Account name:   TBC\n" +
