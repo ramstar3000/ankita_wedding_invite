@@ -261,6 +261,12 @@ p { margin: 8px 0 16px; }
 
 /* ---- Event step -------------------------------------------------------- */
 
+.event-step-intro {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  margin: 0 0 12px;
+  color: var(--accent-dark);
+}
 .event-step-pos {
   margin: 0 0 4px;
   text-transform: uppercase;
