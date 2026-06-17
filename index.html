@@ -246,7 +246,22 @@
       <h2>Gift register</h2>
       <p id="gift-message" class="muted"></p>
       <div id="gift-links" class="btn-row stack"></div>
-      <pre id="gift-bank" class="bank-block" hidden></pre>
+
+      <details class="gift-alt" id="gift-alt">
+        <summary class="gift-alt-summary">Alternative forms of payment</summary>
+        <div class="gift-alt-body">
+          <p class="muted small">
+            If you'd rather send a contribution directly than buy from the
+            wishlists, we've shared bank and UPI details below — please only
+            reveal them if you actually intend to use them.
+          </p>
+          <button id="gift-reveal-bank" class="btn btn-outline" type="button">
+            I'd like to contribute to a money gift
+          </button>
+          <pre id="gift-bank" class="bank-block" hidden></pre>
+        </div>
+      </details>
+
       <div class="btn-row">
         <button id="gift-back" class="btn btn-ghost">Back</button>
       </div>

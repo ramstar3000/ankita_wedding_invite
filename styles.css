@@ -450,6 +450,41 @@ p { margin: 8px 0 16px; }
   white-space: pre-wrap;
   font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
   font-size: 0.9rem;
+  margin-top: 14px;
+}
+
+/* ---- Gift register: gated bank details --------------------------------- */
+
+.gift-alt {
+  margin-top: 22px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+.gift-alt > summary {
+  list-style: none;
+  cursor: pointer;
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  color: var(--accent-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gift-alt > summary::-webkit-details-marker { display: none; }
+.gift-alt > summary::before {
+  content: "▸";
+  display: inline-block;
+  transition: transform 120ms ease;
+  font-size: 0.8em;
+  color: var(--ink-soft);
+}
+.gift-alt[open] > summary::before { transform: rotate(90deg); }
+
+.gift-alt-body {
+  margin-top: 10px;
+}
+.gift-alt-body .btn {
+  width: 100%;
 }
 
 /* ---- Results viewer ---------------------------------------------------- */

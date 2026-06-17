@@ -271,12 +271,21 @@
       linksWrap.appendChild(a);
     });
 
+    const alt = $("#gift-alt");
     const bank = $("#gift-bank");
+    const reveal = $("#gift-reveal-bank");
     if (cfg.gifts.bankDetails) {
       bank.textContent = cfg.gifts.bankDetails;
-      bank.hidden = false;
-    } else {
+      // Reset to gated state every time the page is shown — the guest opts in
+      // by opening the disclosure and clicking through each visit.
       bank.hidden = true;
+      reveal.hidden = false;
+      reveal.textContent = "I'd like to contribute to a money gift";
+      alt.open = false;
+      alt.hidden = false;
+    } else {
+      // Nothing to gate; hide the whole disclosure to avoid an empty block.
+      alt.hidden = true;
     }
   }
 
@@ -994,6 +1003,13 @@
 
     $("#gift-back").addEventListener("click", () => {
       window.ROUTER.go(state.submittedAt ? "thanks" : "cover");
+    });
+
+    $("#gift-reveal-bank").addEventListener("click", () => {
+      const bank = $("#gift-bank");
+      const btn = $("#gift-reveal-bank");
+      bank.hidden = false;
+      btn.hidden = true;
     });
 
     $("#travel-back").addEventListener("click", () => window.ROUTER.go("cover"));
