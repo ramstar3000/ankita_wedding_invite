@@ -219,21 +219,21 @@ p { margin: 8px 0 16px; }
 
 .brand-band {
   text-align: center;
-  padding: 18px 16px 4px;
+  padding: 20px 16px 0;
   max-width: 560px;
   margin: 0 auto;
 }
 .brand-link { display: inline-block; line-height: 0; }
 .brand-logo {
-  max-width: 120px;
-  max-height: 64px;
-  height: auto;
   width: auto;
-  opacity: 0.92;
+  height: 96px;
+  max-width: 200px;
+  opacity: 0.95;
+  filter: drop-shadow(0 1px 1px rgba(80, 40, 50, 0.04));
 }
 @media (min-width: 640px) {
-  .brand-band { padding-top: 28px; }
-  .brand-logo { max-width: 140px; max-height: 76px; }
+  .brand-band { padding-top: 32px; }
+  .brand-logo { height: 120px; max-width: 240px; }
 }
 
 /* ---- QR block (cover) -------------------------------------------------- */

@@ -15,7 +15,7 @@ window.WEDDING_CONFIG = {
 
   // A&S monogram logo shown across pages. Drop your file at ./assets/logo.svg
   // (PNG also fine — update the extension). Leave blank to hide the brand band.
-  logoSrc: "./assets/logo.svg",
+  logoSrc: "./assets/logo.png",
 
   // Path or URL to the invitation card PDF. When set, a 'View invitation'
   // button appears on the cover. Drop your file at ./assets/invitation.pdf
