@@ -22,10 +22,10 @@ window.WEDDING_CONFIG = {
 
   // Up to 4 sub-events. Add/remove freely — pages 4 & 5 adapt.
   events: [
-    { id: "e1", name: "Welcome evening",             date: "Wed 18 Nov", time: "from afternoon", venue: "Sambrama by Swanlines" },
-    { id: "e2", name: "Haldi & day rituals",         date: "Thu 19 Nov", time: "morning",        venue: "Sambrama by Swanlines" },
-    { id: "e3", name: "Baarat, welcome & reception", date: "Thu 19 Nov", time: "evening",        venue: "Sambrama by Swanlines" },
-    { id: "e4", name: "Wedding ceremony",            date: "Fri 20 Nov", time: "early morning",  venue: "Sambrama by Swanlines" }
+    { id: "e1", name: "Welcome evening",             date: "Wed 18 Nov", time: "from afternoon", venue: "Sambrama"},
+    { id: "e2", name: "Haldi & day rituals",         date: "Thu 19 Nov", time: "morning",        venue: "Sambrama"},
+    { id: "e3", name: "Baarat, welcome & reception", date: "Thu 19 Nov", time: "evening",        venue: "Sambrama"},
+    { id: "e4", name: "Wedding ceremony",            date: "Fri 20 Nov", time: "early morning",  venue: "Sambrama"}
   ],
 
   // One entry per meal served. Link each to an event via eventId so page 5
