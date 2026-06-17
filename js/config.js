@@ -9,7 +9,7 @@ window.WEDDING_CONFIG = {
   date: "18th – 20th November (TBC)",
   venue: {
     name: "Sambrama (TBC)",
-    address: "Venue address — TBC",
+    address: "Bangalore, India",
     mapUrl: ""
   },
 
