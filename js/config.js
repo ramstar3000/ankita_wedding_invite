@@ -6,7 +6,7 @@ window.WEDDING_CONFIG = {
     name1: "Ankita",
     name2: "Shyam"
   },
-  date: "18th – 20th November (TBC)",
+  date: "Wednesday 18 – Friday 20 November 2026",
   venue: {
     name: "Sambrama by Swanlines",
     address: "No 107 & 108, Thittahalli Rd, Kaggalipura, Bengaluru, Karnataka 560082",
@@ -22,10 +22,10 @@ window.WEDDING_CONFIG = {
 
   // Up to 4 sub-events. Add/remove freely — pages 4 & 5 adapt.
   events: [
-    { id: "e1", name: "Welcome evening",            date: "Wed eve (TBC)",  time: "from afternoon", venue: "Sambrama" },
-    { id: "e2", name: "Haldi & day rituals",        date: "Thu morning",    time: "morning",        venue: "Sambrama" },
-    { id: "e3", name: "Baarat, welcome & reception", date: "Thu evening",   time: "evening",        venue: "Sambrama" },
-    { id: "e4", name: "Wedding ceremony",           date: "Fri morning",    time: "early morning",  venue: "Sambrama" }
+    { id: "e1", name: "Welcome evening",             date: "Wed 18 Nov", time: "from afternoon", venue: "Sambrama by Swanlines" },
+    { id: "e2", name: "Haldi & day rituals",         date: "Thu 19 Nov", time: "morning",        venue: "Sambrama by Swanlines" },
+    { id: "e3", name: "Baarat, welcome & reception", date: "Thu 19 Nov", time: "evening",        venue: "Sambrama by Swanlines" },
+    { id: "e4", name: "Wedding ceremony",            date: "Fri 20 Nov", time: "early morning",  venue: "Sambrama by Swanlines" }
   ],
 
   // One entry per meal served. Link each to an event via eventId so page 5
