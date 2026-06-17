@@ -100,11 +100,14 @@
         <dd id="event-dress"></dd>
       </dl>
 
-      <label class="field">
-        <span id="event-count-label">How many of your party will attend?</span>
-        <input id="event-count" type="number" min="0" max="20" step="1" inputmode="numeric" value="0" />
-      </label>
-      <p class="muted small event-count-hint" id="event-count-hint"></p>
+      <details class="event-attendees" id="event-attendees" open>
+        <summary class="event-attendees-summary">
+          <span class="event-attendees-label">Who from your party is attending?</span>
+          <span class="event-attendees-count" id="event-attendees-count"></span>
+        </summary>
+        <div class="event-attendees-list" id="event-attendees-list"></div>
+        <p class="muted small event-attendees-hint">Tick everyone joining for this event.</p>
+      </details>
 
       <div class="btn-row">
         <button id="event-back" class="btn btn-ghost">Back</button>

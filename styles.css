@@ -275,7 +275,73 @@ p { margin: 8px 0 16px; }
   margin: 8px 0 16px;
 }
 .event-info { margin-bottom: 8px; }
-.event-count-hint { margin: -8px 0 0; }
+
+/* ---- Per-event attendee disclosure ------------------------------------ */
+
+.event-attendees {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fffdfa;
+  padding: 12px 14px;
+  margin: 18px 0 4px;
+}
+.event-attendees > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  color: var(--ink);
+  padding: 2px 0;
+}
+.event-attendees > summary::-webkit-details-marker { display: none; }
+.event-attendees > summary::after {
+  content: "▾";
+  display: inline-block;
+  margin-left: 4px;
+  color: var(--ink-soft);
+  transition: transform 120ms ease;
+}
+.event-attendees[open] > summary::after { transform: rotate(180deg); }
+.event-attendees-label { font-weight: 500; }
+.event-attendees-count {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--accent-dark);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  background: #f7ece1;
+  border-radius: 999px;
+  padding: 2px 10px;
+  white-space: nowrap;
+}
+.event-attendees-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+}
+.attendee-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 4px;
+  border-top: 1px solid var(--border);
+  cursor: pointer;
+}
+.event-attendees-list .attendee-row:first-child { border-top: 0; }
+.attendee-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.attendee-name { color: var(--ink); }
+.event-attendees-hint { margin: 10px 0 0; }
 
 /* ---- Thank-you summary ------------------------------------------------- */
 

@@ -124,6 +124,32 @@
     return (cfg.events || [])[state.currentEventIndex] || null;
   }
 
+  // The party as an ordered list. Index 0 = lead guest (state.name);
+  // subsequent indices = entries from state.partyNames (falling back to a
+  // numbered placeholder so unnamed slots still get a tickbox).
+  function partyMembers() {
+    const total = Math.max(1, state.partySize || 1);
+    const out = [];
+    for (let i = 0; i < total; i++) {
+      if (i === 0) {
+        out.push({ index: 0, name: state.name || "Guest 1" });
+      } else {
+        const nm = (state.partyNames[i - 1] || "").trim();
+        out.push({ index: i, name: nm || `Guest ${i + 1}` });
+      }
+    }
+    return out;
+  }
+
+  function attendeesForCurrentEvent() {
+    const ev = currentEvent();
+    if (!ev) return [];
+    const stored = state.eventAttendees[ev.id];
+    if (!Array.isArray(stored)) return [];
+    const max = Math.max(1, state.partySize || 1);
+    return stored.filter((i) => Number.isInteger(i) && i >= 0 && i < max);
+  }
+
   function renderEventStep() {
     const ev = currentEvent();
     if (!ev) return; // router guard will move us to notes
@@ -136,21 +162,31 @@
     $("#event-meals").textContent = ev.meals || "";
     $("#event-dress").textContent = ev.dressCode || "";
 
-    const partySize = Math.max(1, state.partySize || 1);
-    const max = Math.max(20, partySize);
-    const stored = state.eventCounts[ev.id];
-    const countInput = $("#event-count");
-    countInput.max = String(max);
-    countInput.value = stored != null ? stored : 0;
+    const members = partyMembers();
+    const ticked = new Set(attendeesForCurrentEvent());
 
-    $("#event-count-hint").textContent = `Up to ${partySize} (your party size)`;
+    const list = $("#event-attendees-list");
+    list.innerHTML = "";
+    members.forEach((m) => {
+      const row = document.createElement("label");
+      row.className = "attendee-row";
+      row.innerHTML = `
+        <input type="checkbox" class="attendee-checkbox" data-index="${m.index}" ${ticked.has(m.index) ? "checked" : ""} />
+        <span class="attendee-name"></span>
+      `;
+      row.querySelector(".attendee-name").textContent = m.name;
+      const input = row.querySelector("input");
+      input.addEventListener("change", () => {
+        const next = new Set(attendeesForCurrentEvent());
+        if (input.checked) next.add(m.index); else next.delete(m.index);
+        const arr = Array.from(next).sort((a, b) => a - b);
+        set({ eventAttendees: { ...state.eventAttendees, [ev.id]: arr } });
+        updateAttendeeCount();
+      });
+      list.appendChild(row);
+    });
 
-    countInput.oninput = () => {
-      const raw = parseInt(countInput.value, 10);
-      const n = isNaN(raw) ? 0 : Math.max(0, Math.min(max, raw));
-      const next = { ...state.eventCounts, [ev.id]: n };
-      set({ eventCounts: next });
-    };
+    updateAttendeeCount();
 
     const backBtn = $("#event-back");
     backBtn.textContent = state.currentEventIndex === 0 ? "Back to RSVP" : "Previous event";
@@ -159,6 +195,13 @@
     nextBtn.textContent = state.currentEventIndex === total - 1
       ? "Continue to final step"
       : "Next event";
+  }
+
+  function updateAttendeeCount() {
+    const total = Math.max(1, state.partySize || 1);
+    const ticked = attendeesForCurrentEvent().length;
+    const el = $("#event-attendees-count");
+    if (el) el.textContent = `${ticked} of ${total}`;
   }
 
   // ---- Notes step --------------------------------------------------------
@@ -275,10 +318,18 @@
       row("Names", [state.name].concat(state.partyNames.filter(Boolean)).join(", "));
     }
 
-    const eventNameById = Object.fromEntries((cfg.events || []).map((e) => [e.id, e.name]));
+    const members = partyMembers();
+    const memberNameByIndex = Object.fromEntries(members.map((m) => [m.index, m.name]));
     (cfg.events || []).forEach((ev) => {
-      const n = state.eventCounts[ev.id] || 0;
-      row(eventNameById[ev.id] || ev.id, n === 0 ? "Not attending" : `${n} attending`);
+      const indices = Array.isArray(state.eventAttendees[ev.id])
+        ? state.eventAttendees[ev.id].filter((i) => memberNameByIndex[i] != null)
+        : [];
+      if (indices.length === 0) {
+        row(ev.name, "No one attending");
+      } else {
+        const names = indices.map((i) => memberNameByIndex[i]).join(", ");
+        row(ev.name, `${names} (${indices.length})`);
+      }
     });
 
     if (state.allergies) row("Allergies / food notes", state.allergies);
@@ -309,7 +360,7 @@
 
   // ---- Results aggregation + render --------------------------------------
 
-  function parseEventCounts(str) {
+  function parseJsonObject(str) {
     if (!str) return {};
     try {
       const obj = JSON.parse(String(str));
@@ -338,7 +389,8 @@
       attending: String(get(row, "attending") || ""),
       side: String(get(row, "side") || ""),
       partySize: Math.max(1, Number(get(row, "partySize")) || 1),
-      eventCounts: parseEventCounts(get(row, "eventCounts")),
+      eventAttendees: parseJsonObject(get(row, "eventAttendees")),    // { [eventId]: string[] }
+      eventCounts: parseJsonObject(get(row, "eventCounts")),
       legacyEvents: legacyEventNames(get(row, "attendingEvents")),
       allergies: String(get(row, "allergies") || get(row, "notes") || ""),
       email: String(get(row, "email") || ""),
@@ -357,28 +409,44 @@
       groomSide: records.filter((r) => /^Groom/.test(r.side)).length
     };
 
-    // Per-event headcount, summed across rows. Mix old + new schemas.
+    // Per-event headcount, summed across rows. Prefer eventAttendees (names);
+    // fall back to eventCounts (numbers); fall back to legacy attendingEvents.
     const eventCounts = {};
+    const eventNamesPerEvent = {};   // { eventDisplayName: string[] of attendee names }
     const eventNameById = Object.fromEntries((cfg.events || []).map((e) => [e.id, e.name]));
     yes.forEach((r) => {
-      Object.entries(r.eventCounts).forEach(([id, n]) => {
-        const name = eventNameById[id] || id;
-        const num = Math.max(0, Number(n) || 0);
-        if (num > 0) eventCounts[name] = (eventCounts[name] || 0) + num;
-      });
-      // Legacy rows: no per-event count → assume full party size for each named event.
-      if (Object.keys(r.eventCounts).length === 0 && r.legacyEvents.length) {
-        r.legacyEvents.forEach((name) => {
-          eventCounts[name] = (eventCounts[name] || 0) + r.partySize;
+      const attendeesById = r.eventAttendees;
+      const hasAttendees = Object.keys(attendeesById).length > 0;
+      if (hasAttendees) {
+        Object.entries(attendeesById).forEach(([id, names]) => {
+          const display = eventNameById[id] || id;
+          const arr = Array.isArray(names) ? names : [];
+          if (arr.length === 0) return;
+          eventCounts[display] = (eventCounts[display] || 0) + arr.length;
+          eventNamesPerEvent[display] = (eventNamesPerEvent[display] || []).concat(arr);
         });
+        return;
       }
+      const counts = r.eventCounts;
+      if (Object.keys(counts).length > 0) {
+        Object.entries(counts).forEach(([id, n]) => {
+          const display = eventNameById[id] || id;
+          const num = Math.max(0, Number(n) || 0);
+          if (num > 0) eventCounts[display] = (eventCounts[display] || 0) + num;
+        });
+        return;
+      }
+      // Legacy rows: each named event pulls in the full party size.
+      r.legacyEvents.forEach((name) => {
+        eventCounts[name] = (eventCounts[name] || 0) + r.partySize;
+      });
     });
 
     const allergyNotes = records
       .filter((r) => r.allergies && r.allergies.trim())
       .map((r) => ({ name: r.name || "(unnamed)", text: r.allergies.trim() }));
 
-    return { records, totals, eventCounts, allergyNotes };
+    return { records, totals, eventCounts, eventNamesPerEvent, allergyNotes };
   }
 
   // ---- Pie chart helpers --------------------------------------------------
@@ -582,17 +650,27 @@
     const eventNameById = Object.fromEntries((cfg.events || []).map((e) => [e.id, e.name]));
     sorted.forEach((r) => {
       const tr = document.createElement("tr");
-      const counts = Object.entries(r.eventCounts)
-        .filter(([, n]) => Number(n) > 0)
-        .map(([id, n]) => `${eventNameById[id] || id}: ${n}`)
-        .join("; ");
+      let perEvent = "";
+      if (Object.keys(r.eventAttendees).length > 0) {
+        perEvent = Object.entries(r.eventAttendees)
+          .filter(([, names]) => Array.isArray(names) && names.length)
+          .map(([id, names]) => `${eventNameById[id] || id}: ${names.join(", ")}`)
+          .join("; ");
+      } else if (Object.keys(r.eventCounts).length > 0) {
+        perEvent = Object.entries(r.eventCounts)
+          .filter(([, n]) => Number(n) > 0)
+          .map(([id, n]) => `${eventNameById[id] || id}: ${n}`)
+          .join("; ");
+      } else if (r.legacyEvents.length) {
+        perEvent = r.legacyEvents.join(", ") + " (legacy)";
+      }
       const cells = [
         fmtDate(r.submittedAt),
         r.name || "—",
         r.side.replace("'s side", "") || "—",
         String(r.partySize),
         r.attending || "—",
-        counts || (r.legacyEvents.length ? r.legacyEvents.join(", ") + " (legacy)" : "—"),
+        perEvent || "—",
         r.email || "—"
       ];
       cells.forEach((c, i) => {
@@ -685,15 +763,16 @@
 
     $("#rsvp-yes").addEventListener("click", () => {
       if (!validateRsvp()) return;
-      // Default each event count to the full party size when first entering the flow,
-      // so the common case (everyone attending everything) only needs taps to reduce.
+      // Default each event to "everyone attending" on first arrival. Subsequent
+      // visits keep whatever the guest already ticked.
+      const allIndices = partyMembers().map((m) => m.index);
       const defaults = {};
       (cfg.events || []).forEach((ev) => {
-        defaults[ev.id] = state.eventCounts[ev.id] != null
-          ? state.eventCounts[ev.id]
-          : state.partySize;
+        defaults[ev.id] = Array.isArray(state.eventAttendees[ev.id])
+          ? state.eventAttendees[ev.id]
+          : allIndices.slice();
       });
-      set({ attending: true, currentEventIndex: 0, eventCounts: defaults });
+      set({ attending: true, currentEventIndex: 0, eventAttendees: defaults });
       window.ROUTER.go("event");
     });
 
@@ -701,6 +780,7 @@
       if (!validateRsvp()) return;
       set({
         attending: false,
+        eventAttendees: {},
         eventCounts: {},
         allergies: ""
       });

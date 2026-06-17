@@ -2,8 +2,35 @@
 // otherwise open a pre-filled mailto: so submissions still reach the couple.
 
 (function () {
+  function memberNames() {
+    const s = window.RSVP.state;
+    const total = Math.max(1, s.partySize || 1);
+    const out = [];
+    for (let i = 0; i < total; i++) {
+      if (i === 0) out.push((s.name || "").trim() || ("Guest 1"));
+      else {
+        const nm = ((s.partyNames || [])[i - 1] || "").trim();
+        out.push(nm || `Guest ${i + 1}`);
+      }
+    }
+    return out;
+  }
+
   function buildPayload() {
     const s = window.RSVP.state;
+    const names = memberNames();
+
+    // Convert eventAttendees (party indices) → names + derive counts.
+    const eventAttendees = {};
+    const eventCounts = {};
+    Object.entries(s.eventAttendees || {}).forEach(function ([eid, indices]) {
+      const arr = Array.isArray(indices) ? indices : [];
+      const resolved = arr
+        .filter(function (i) { return Number.isInteger(i) && i >= 0 && i < names.length; })
+        .map(function (i) { return names[i]; });
+      eventAttendees[eid] = resolved;
+      eventCounts[eid] = resolved.length;
+    });
 
     return {
       submittedAt: s.submittedAt || new Date().toISOString(),
@@ -12,7 +39,8 @@
       partySize: s.partySize || 1,
       partyNames: (s.partyNames || []).filter(function (n) { return n && n.length; }),
       attending: s.attending,
-      eventCounts: s.eventCounts || {},                              // { [eventId]: number }
+      eventAttendees: eventAttendees,                                // { [eventId]: string[] }
+      eventCounts: eventCounts,                                      // { [eventId]: number } (derived)
       allergies: s.allergies || "",
       email: s.email || "",
       phone: s.phone || ""
@@ -35,11 +63,16 @@
     }
     lines.push(`Attending: ${payload.attending === true ? "Yes" : payload.attending === false ? "No" : "—"}`);
     if (payload.attending) {
-      const entries = Object.entries(payload.eventCounts || {});
+      const entries = Object.entries(payload.eventAttendees || {});
       if (entries.length) {
         lines.push("Per event:");
-        entries.forEach(([id, count]) => {
-          lines.push(`  - ${eventNameById[id] || id}: ${count} attending`);
+        entries.forEach(([id, names]) => {
+          const display = eventNameById[id] || id;
+          if (Array.isArray(names) && names.length) {
+            lines.push(`  - ${display}: ${names.join(", ")} (${names.length})`);
+          } else {
+            lines.push(`  - ${display}: no one attending`);
+          }
         });
       }
       if (payload.allergies) lines.push(`Allergies / food notes: ${payload.allergies}`);

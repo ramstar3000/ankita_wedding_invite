@@ -46,7 +46,9 @@ const HEADERS = [
   'eventCounts',
   'allergies',
   'email',
-  'phone'
+  'phone',
+  // Per-event named attendees: { [eventId]: string[] }
+  'eventAttendees'
 ];
 
 function doPost(e) {
@@ -93,7 +95,9 @@ function handleSubmit(body) {
       ? JSON.stringify(body.eventCounts) : '',
     body.allergies || '',
     body.email || '',
-    body.phone || ''
+    body.phone || '',
+    body.eventAttendees && typeof body.eventAttendees === 'object'
+      ? JSON.stringify(body.eventAttendees) : ''
   ]);
 
   return jsonOut({ ok: true });

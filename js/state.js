@@ -11,7 +11,8 @@
     partyNames: [],         // names of the additional people (length = partySize - 1)
     attending: null,        // true | false | null
     currentEventIndex: 0,   // which cfg.events[i] the event step is showing
-    eventCounts: {},        // { [eventId]: number } — count of party attending each event
+    eventAttendees: {},     // { [eventId]: number[] }  party-member indices attending (0 = lead, 1+ = additional)
+    eventCounts: {},        // legacy — derived from eventAttendees at submit time, kept for back-compat
     allergies: "",          // free-text allergies / additional food needs
     email: "",              // contact email for RSVP summary
     phone: "",              // optional phone
@@ -44,7 +45,7 @@
   }
 
   function reset() {
-    Object.assign(state, DEFAULTS, { eventCounts: {}, partyNames: [] });
+    Object.assign(state, DEFAULTS, { eventAttendees: {}, eventCounts: {}, partyNames: [] });
     try { sessionStorage.removeItem(KEY); } catch (e) {}
   }
 
