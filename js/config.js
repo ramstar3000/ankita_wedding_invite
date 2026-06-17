@@ -68,10 +68,7 @@ window.WEDDING_CONFIG = {
     message:
       "Your presence at the wedding is more than enough. If you'd still like to mark " +
       "the occasion with a gift, a few options below — please don't feel obliged.",
-    registryLinks: [
-      { label: "Amazon UK wishlist (TBC)",    url: "https://www.amazon.co.uk/" },
-      { label: "Amazon India wishlist (TBC)", url: "https://www.amazon.in/" }
-    ],
+    registryLinks: [],
     bankDetails:
       "UPI ID:  ankita-shyam@TBC\n" +
       "Bank transfer (India):\n" +
