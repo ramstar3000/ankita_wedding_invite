@@ -142,6 +142,94 @@
     }
   }
 
+  // ---- Results viewer (password-gated) ------------------------------------
+
+  function showResultsAuth(errorMsg) {
+    $("#results-auth").hidden = false;
+    $("#results-data").hidden = true;
+    const err = $("#results-error");
+    if (errorMsg) {
+      err.textContent = errorMsg;
+      err.hidden = false;
+    } else {
+      err.hidden = true;
+    }
+  }
+
+  function renderResultsTable(headers, rows) {
+    const table = $("#results-table");
+    table.innerHTML = "";
+
+    const thead = document.createElement("thead");
+    const headRow = document.createElement("tr");
+    headers.forEach((h) => {
+      const th = document.createElement("th");
+      th.textContent = String(h);
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    rows.forEach((row) => {
+      const tr = document.createElement("tr");
+      row.forEach((cell) => {
+        const td = document.createElement("td");
+        td.textContent = cell == null ? "" : String(cell);
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+
+    $("#results-summary").textContent =
+      `${rows.length} ${rows.length === 1 ? "response" : "responses"}`;
+
+    $("#results-auth").hidden = true;
+    $("#results-data").hidden = false;
+  }
+
+  async function fetchResults(password) {
+    const endpoint = (cfg.rsvp && cfg.rsvp.endpoint) || "";
+    if (!endpoint) {
+      showResultsAuth("No endpoint is configured — set rsvp.endpoint in config.js.");
+      return;
+    }
+    const btn = $("#results-view-btn");
+    if (btn) { btn.disabled = true; btn.textContent = "Checking…"; }
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "results", password })
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        if (data.error === "auth") showResultsAuth("Wrong password — try again.");
+        else if (data.error === "not-configured") showResultsAuth("Password not set in Apps Script yet.");
+        else showResultsAuth("Couldn't load results: " + (data.error || "unknown error"));
+        return;
+      }
+      sessionStorage.setItem("ankita_results_pwd", password);
+      renderResultsTable(data.headers || [], data.rows || []);
+    } catch (err) {
+      showResultsAuth("Network error — " + err.message);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = "View results"; }
+    }
+  }
+
+  function renderResults() {
+    const cached = sessionStorage.getItem("ankita_results_pwd");
+    if (cached) {
+      fetchResults(cached);
+    } else {
+      showResultsAuth();
+      const input = $("#results-password");
+      if (input) { input.value = ""; setTimeout(() => input.focus(), 50); }
+    }
+  }
+
   function renderThanks() {
     const name = state.name ? `, ${state.name}` : "";
     $("#thanks-line").textContent = state.attending
@@ -222,6 +310,20 @@
     $("#gift-back").addEventListener("click", () => {
       window.ROUTER.go(state.submittedAt ? "thanks" : "cover");
     });
+
+    $("#results-view-btn").addEventListener("click", () => {
+      const pwd = $("#results-password").value;
+      if (!pwd) return;
+      fetchResults(pwd);
+    });
+    $("#results-password").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") $("#results-view-btn").click();
+    });
+    $("#results-refresh").addEventListener("click", () => {
+      const cached = sessionStorage.getItem("ankita_results_pwd");
+      if (cached) fetchResults(cached);
+    });
+    $("#results-back").addEventListener("click", () => window.ROUTER.go("cover"));
   }
 
   // ---- Step listener -------------------------------------------------------
@@ -235,6 +337,7 @@
       case "accommodation": renderAccommodation(); break;
       case "thanks": renderThanks(); break;
       case "gift": renderGift(); break;
+      case "results": renderResults(); break;
     }
   });
 

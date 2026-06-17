@@ -1,30 +1,30 @@
 /**
- * Google Apps Script for collecting wedding RSVPs into a Google Sheet.
+ * Google Apps Script for Ankita & Shyam's wedding RSVP site.
  *
- * SETUP (one-time, ~10 minutes):
+ * Two actions handled via POST:
+ *   - action: "submit"  (default) — append an RSVP row to the Sheet.
+ *   - action: "results" — return the Sheet rows as JSON, gated by a password.
  *
- * 1. Create a new Google Sheet (any name, e.g. "Ankita & Shyam RSVPs").
- * 2. In the Sheet: Extensions → Apps Script. A new editor tab opens.
- * 3. Delete the default `Code.gs` contents and paste THIS file in.
- * 4. Click the disk icon to save (project name can be anything).
- * 5. Click "Deploy" (top right) → "New deployment".
- *      - Gear icon → "Web app"
- *      - Description: "RSVP endpoint"
- *      - Execute as: "Me"
- *      - Who has access: "Anyone"  ← important
- *      - Click "Deploy"
- * 6. Authorise when prompted (you'll need to click "Advanced" → "Go to … (unsafe)"
- *    because the script is unverified — it's yours, that's fine).
- * 7. Copy the "Web app URL" (ends in /exec). Paste it into
- *    js/config.js as `rsvp.endpoint`.
- * 8. Submit a test RSVP from the live site — a row should appear in the Sheet.
+ * SETUP — RSVP collection (one-time):
+ *   1. Create a Google Sheet, e.g. "Ankita & Shyam RSVPs".
+ *   2. Extensions → Apps Script. Paste this file in. Save.
+ *   3. Deploy → New deployment → gear → Web app.
+ *        Execute as: Me
+ *        Who has access: Anyone   ← important
+ *   4. Authorise. Copy the /exec URL into js/config.js as rsvp.endpoint.
  *
- * RE-DEPLOYING:
- *   If you edit this script later, you MUST Deploy → Manage deployments →
- *   pencil icon → Version: New version → Deploy. The /exec URL stays the same.
+ * SETUP — Results viewer password (one-time):
+ *   1. In the Apps Script editor: Project Settings (gear, left rail)
+ *      → "Script properties" → "Add script property".
+ *   2. Property name:  RESULTS_PASSWORD
+ *      Value:          (a password you'll share with family)
+ *   3. Save. No re-deploy needed for property changes.
+ *
+ * RE-DEPLOYING after editing this script:
+ *   Deploy → Manage deployments → pencil → Version: New version → Deploy.
+ *   The /exec URL stays the same.
  */
 
-// Header row written the first time the sheet is empty.
 const HEADERS = [
   'submittedAt',
   'name',
@@ -43,43 +43,76 @@ function doPost(e) {
       ? JSON.parse(e.postData.contents)
       : {};
 
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-
-    // Write headers if the sheet is empty (first ever submission).
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow(HEADERS);
-      sheet.setFrozenRows(1);
+    if (body.action === 'results') {
+      return handleResults(body.password);
     }
-
-    const row = [
-      body.submittedAt || new Date().toISOString(),
-      body.name || '',
-      body.attending === true ? 'Yes' : body.attending === false ? 'No' : '',
-      body.scope || '',
-      Array.isArray(body.attendingEvents) ? body.attendingEvents.join(', ') : '',
-      Array.isArray(body.foodChoices)
-        ? body.foodChoices.map(function (f) { return f.meal + ': ' + f.choice; }).join('; ')
-        : '',
-      body.accommodation || '',
-      body.notes || '',
-      JSON.stringify(body)
-    ];
-
-    sheet.appendRow(row);
-
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: true }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return handleSubmit(body);
 
   } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, error: String(err) }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonOut({ ok: false, error: String(err) });
   }
 }
 
-// A GET handler so you can paste the /exec URL into a browser
-// and confirm the deployment is live before wiring it up.
+function handleSubmit(body) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(HEADERS);
+    sheet.setFrozenRows(1);
+  }
+
+  sheet.appendRow([
+    body.submittedAt || new Date().toISOString(),
+    body.name || '',
+    body.attending === true ? 'Yes' : body.attending === false ? 'No' : '',
+    body.scope || '',
+    Array.isArray(body.attendingEvents) ? body.attendingEvents.join(', ') : '',
+    Array.isArray(body.foodChoices)
+      ? body.foodChoices.map(function (f) { return f.meal + ': ' + f.choice; }).join('; ')
+      : '',
+    body.accommodation || '',
+    body.notes || '',
+    JSON.stringify(body)
+  ]);
+
+  return jsonOut({ ok: true });
+}
+
+function handleResults(submittedPassword) {
+  const expected = PropertiesService.getScriptProperties().getProperty('RESULTS_PASSWORD');
+
+  // If no password is configured, refuse — don't accidentally expose data.
+  if (!expected) {
+    return jsonOut({ ok: false, error: 'not-configured' });
+  }
+  if (!submittedPassword || submittedPassword !== expected) {
+    return jsonOut({ ok: false, error: 'auth' });
+  }
+
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const lastRow = sheet.getLastRow();
+  if (lastRow === 0) {
+    return jsonOut({ ok: true, headers: HEADERS, rows: [] });
+  }
+
+  const values = sheet.getDataRange().getValues();
+  const headers = values[0];
+  const rows = values.slice(1).map(function (row) {
+    return row.map(function (cell) {
+      // Dates → ISO strings so the browser receives plain text.
+      return cell instanceof Date ? cell.toISOString() : cell;
+    });
+  });
+
+  return jsonOut({ ok: true, headers: headers, rows: rows });
+}
+
+function jsonOut(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
 function doGet() {
   return ContentService
     .createTextOutput('RSVP endpoint is live. POST JSON here.')

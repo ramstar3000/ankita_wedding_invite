@@ -37,6 +37,21 @@ The endpoint URL is not a secret — safe to keep in this public repo.
 
 **Re-deploying after script edits:** Deploy → Manage deployments → pencil icon → Version: **New version** → Deploy. The `/exec` URL stays the same.
 
+## Password-protected results viewer
+
+Family can view RSVPs at **https://ramstar3000.github.io/ankita_wedding_invite/#results** after entering a shared password.
+
+Set the password (one-time):
+
+1. In the Apps Script editor → **Project Settings** (gear, left rail).
+2. Scroll to **Script properties** → **Add script property**.
+3. Property: `RESULTS_PASSWORD`, Value: whatever you want to share with family.
+4. **Save**. No re-deploy needed for property changes.
+
+If you've already deployed the older Apps Script (without the results handler), Deploy → Manage deployments → pencil → **New version** to pick up the changes.
+
+The password never goes near the public repo — it lives only in the Apps Script project's settings, and the static site sends it via POST body when family loads `#results`.
+
 ## Deploying to GitHub Pages
 
 1. Push to the `main` branch of `ramstar3000/ankita_wedding_invite`.
