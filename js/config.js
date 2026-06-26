@@ -7,6 +7,7 @@ window.WEDDING_CONFIG = {
     name2: "Shyam"
   },
   date: "Thursday 19 – Friday 20 November 2026",
+  rsvpBy: "Kindly RSVP by 8 November 2026",
   venue: {
     name: "Sambrama by Swanlines",
     address: "No 107 & 108, Thittahalli Rd, Kaggalipura, Bengaluru, Karnataka 560082",
@@ -87,41 +88,57 @@ window.WEDDING_CONFIG = {
   },
 
   travel: {
+    // Map link to the venue, shown prominently at the top of the page.
+    mapLabel: "Open Sambrama by Swanlines in Google Maps",
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Sambrama+by+Swanlines+Kaggalipura+Bengaluru",
     airport: {
       name: "Kempegowda International Airport (BLR), Bengaluru",
       note: "About 50 km / 90 minutes by road from Sambrama — south of the city, on Kanakapura Road."
     },
+    station: {
+      name: "KSR Bengaluru City Junction (SBC), also known as Krantivira Sangolli Rayanna",
+      note: "Bengaluru's main railhead, around 35 km / 1–1.5 hours by road from Sambrama depending on traffic."
+    },
     arrival: {
-      suggested: "Arrive into Bengaluru on or before Wednesday 18 November, in time to settle before the Haldi ceremony on Thursday morning.",
-      departure: "Most events wrap up by Friday afternoon (20 November), so any flights out from Friday evening onwards work."
+      suggested: "We recommend arriving in Bengaluru by Wednesday, 18 November, so you have plenty of time to settle in before the Haldi ceremony on Thursday morning.",
+      departure: "The wedding festivities conclude on Friday afternoon (20 November), allowing for departures from Friday evening onwards."
     },
     transport: [
       {
-        label: "Pre-arranged airport transfer",
-        description:
-          "We can help coordinate a car from BLR airport to Sambrama, especially for guests arriving together. " +
-          "Reply on your RSVP with your flight details and we'll match you up."
-      },
-      {
         label: "Ola / Uber",
         description:
-          "Both apps work well in Bengaluru. Allow roughly ₹2,000–₹2,500 and 2 hours including traffic. " +
-          "Ride-share availability at Sambrama itself is patchier — better to pre-book the return."
+          "Both apps operate well in Bengaluru. Allow approximately 2 hours for the journey (depending on traffic), " +
+          "with fares typically ranging between ₹2,000–₹2,500. As ride availability from Sambrama can be limited, " +
+          "we recommend arranging your return journey in advance."
       },
       {
         label: "Self-drive",
         description:
-          "Sambrama has on-site parking for 250 cars. The Google Maps link on the cover takes you to the venue gate."
+          "If you're driving, Sambrama has ample on-site parking for up to 250 cars. The Google Maps link on the " +
+          "cover page will take you directly to the venue entrance."
       }
     ],
     visa: {
       heading: "Visa for overseas guests",
       body:
-        "Most nationalities can apply online for the Indian e-Visa — it's quick (typically a few business days) " +
-        "and covers tourist travel. Apply about a month before you fly. UK, US, EU, Australia, Singapore and many " +
-        "others are eligible. Check indianvisaonline.gov.in for the latest."
+        "Most visitors can apply for an Indian e-Visa online, making the process quick and straightforward. " +
+        "We recommend applying around a month before your trip, although approvals are often issued within a few business days.\n\n" +
+        "Please check the official Indian e-Visa website for the latest eligibility requirements and application details.",
+      linkLabel: "Official Indian e-Visa website",
+      linkUrl: "https://indianvisaonline.gov.in/"
     },
-    notes: "Closer to the date we'll share a single 'on the day' info sheet with venue directions, who-to-call numbers and a packing list."
+    useful: {
+      heading: "Useful information",
+      items: [
+        { label: "Time zone", value: "India Standard Time (IST), UTC +5:30 — no daylight saving. That's 5½ hours ahead of the UK in November." },
+        { label: "Weather", value: "November in Bengaluru is pleasant — warm days around 27°C and cooler evenings near 16–18°C. Bring light layers for the evenings." },
+        { label: "Currency", value: "Indian Rupee (₹ / INR). Cards are widely accepted in the city; carry some cash for smaller vendors and tips. ATMs are easy to find." },
+        { label: "Plugs & power", value: "230V, 50Hz with Type C, D and M sockets. A universal travel adapter is the easiest option." },
+        { label: "Mobile & data", value: "Local prepaid SIMs (Airtel, Jio) and eSIMs are cheap and reliable; international roaming and hotel Wi-Fi also work well." }
+      ],
+      linkLabel: "Official UK travel advice for India",
+      linkUrl: "https://www.gov.uk/foreign-travel-advice/india"
+    }
   },
 
   rsvp: {

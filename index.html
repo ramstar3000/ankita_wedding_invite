@@ -36,6 +36,8 @@
           <button id="cover-rsvp-btn" class="btn btn-primary">RSVP</button>
         </div>
 
+        <p class="cover-rsvp-by" id="cover-rsvp-by" hidden></p>
+
         <div class="qr-block" id="cover-map-qr-block" hidden>
           <img id="cover-map-qr" class="qr-img" alt="QR code for venue map" />
           <p class="qr-caption">
@@ -45,7 +47,7 @@
         </div>
 
         <p class="cover-footnote">
-          Can't make it? <a id="cover-gift-link" class="link" href="#gift">See the gift register</a>
+          Already RSVP'd? <a id="cover-gift-link" class="link" href="#gift">See the gift register</a>
           <span class="dot-sep">·</span>
           <a id="cover-travel-link" class="link" href="#travel">Travel &amp; arrival</a>
         </p>
@@ -215,29 +217,36 @@
     <section data-step="travel" class="step" hidden>
       <h2>Travel &amp; arrival</h2>
 
+      <a id="travel-map-link" class="btn btn-outline travel-map-btn" target="_blank" rel="noopener" hidden></a>
+
       <div class="info-block">
-        <h3 class="info-heading">Nearest airport</h3>
+        <h3 class="info-heading">Travel</h3>
+        <p class="travel-sub">Nearest airport</p>
         <p id="travel-airport-name"></p>
         <p class="muted small" id="travel-airport-note"></p>
+        <p class="travel-sub">Nearest train station</p>
+        <p id="travel-station-name"></p>
+        <p class="muted small" id="travel-station-note"></p>
+        <dl id="travel-transport" class="info-dl"></dl>
       </div>
 
       <div class="info-block">
-        <h3 class="info-heading">When to arrive</h3>
+        <h3 class="info-heading">Arrival</h3>
         <p id="travel-arrival"></p>
         <p id="travel-departure"></p>
       </div>
 
-      <div class="info-block">
-        <h3 class="info-heading">Getting to Sambrama</h3>
-        <dl id="travel-transport" class="info-dl"></dl>
-      </div>
-
       <div class="info-block" id="travel-visa-block">
         <h3 class="info-heading" id="travel-visa-heading"></h3>
-        <p id="travel-visa-body"></p>
+        <p id="travel-visa-body" class="travel-prewrap"></p>
+        <p><a id="travel-visa-link" class="link" target="_blank" rel="noopener" hidden></a></p>
       </div>
 
-      <p class="muted small" id="travel-notes"></p>
+      <div class="info-block" id="travel-useful-block">
+        <h3 class="info-heading" id="travel-useful-heading"></h3>
+        <dl id="travel-useful" class="info-dl"></dl>
+        <p><a id="travel-useful-link" class="link" target="_blank" rel="noopener" hidden></a></p>
+      </div>
 
       <div class="btn-row">
         <button id="travel-back" class="btn btn-ghost">Back to invite</button>

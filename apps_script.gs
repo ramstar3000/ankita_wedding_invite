@@ -76,7 +76,7 @@ function handleSubmit(body) {
                   : body.side === 'groom' ? "Groom's side"
                   : '';
 
-  sheet.appendRow([
+  const rowValues = [
     body.submittedAt || new Date().toISOString(),
     body.name || '',
     body.attending === true ? 'Yes' : body.attending === false ? 'No' : '',
@@ -98,9 +98,45 @@ function handleSubmit(body) {
     body.phone || '',
     body.eventAttendees && typeof body.eventAttendees === 'object'
       ? JSON.stringify(body.eventAttendees) : ''
-  ]);
+  ];
 
-  return jsonOut({ ok: true });
+  // Prevent duplicate RSVPs: if the same guest (matched on name + email)
+  // already has a row, overwrite it in place instead of appending a new one.
+  const key = submissionKey(body.name, body.email);
+  const existingRow = key ? findRowByKey(sheet, key) : 0;
+  if (existingRow > 0) {
+    sheet.getRange(existingRow, 1, 1, rowValues.length).setValues([rowValues]);
+    return jsonOut({ ok: true, updated: true });
+  }
+  sheet.appendRow(rowValues);
+  return jsonOut({ ok: true, updated: false });
+}
+
+// Normalised identity for a submission — lowercased name + email. Returns ''
+// when there's nothing to match on (then we always append).
+function submissionKey(name, email) {
+  const n = (name || '').toString().trim().toLowerCase();
+  const e = (email || '').toString().trim().toLowerCase();
+  if (!n && !e) return '';
+  return n + '|' + e;
+}
+
+// Row number (1-based) of an existing submission matching `key`, or 0.
+function findRowByKey(sheet, key) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return 0;
+  const lastCol = sheet.getLastColumn();
+  const headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  const nameCol = headers.indexOf('name');
+  const emailCol = headers.indexOf('email');
+  if (nameCol < 0) return 0;
+  const rows = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
+  for (let i = 0; i < rows.length; i++) {
+    const n = (rows[i][nameCol] || '').toString().trim().toLowerCase();
+    const e = emailCol >= 0 ? (rows[i][emailCol] || '').toString().trim().toLowerCase() : '';
+    if (n + '|' + e === key) return i + 2;
+  }
+  return 0;
 }
 
 // Idempotently extends the header row to match HEADERS. Existing column

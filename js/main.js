@@ -8,6 +8,37 @@
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $$(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
 
+  // ---- Duplicate-submission guard ----------------------------------------
+  // We remember (in localStorage, so it survives across visits on this device)
+  // that an RSVP was sent. A returning guest is asked to confirm before sending
+  // again, and the server upserts on name+email so a re-send updates their row
+  // rather than creating a duplicate.
+  const SUBMIT_KEY = "ankita_wedding_submitted_v1";
+
+  function priorSubmission() {
+    try { return JSON.parse(localStorage.getItem(SUBMIT_KEY) || "null"); }
+    catch (e) { return null; }
+  }
+
+  function recordSubmission() {
+    try {
+      localStorage.setItem(SUBMIT_KEY, JSON.stringify({
+        submittedAt: state.submittedAt || new Date().toISOString(),
+        name: state.name || ""
+      }));
+    } catch (e) { /* storage disabled — the server upsert still dedupes */ }
+  }
+
+  function confirmIfResubmitting() {
+    const prior = priorSubmission();
+    if (!prior) return true;
+    const who = prior.name ? ` for ${prior.name}` : "";
+    return window.confirm(
+      `Our records show an RSVP has already been sent${who} from this device. ` +
+      `Sending again will update your previous response. Continue?`
+    );
+  }
+
   // Invitation images in display order (filters out any blanks).
   function invitationImageList() {
     const list = Array.isArray(cfg.invitationImages) ? cfg.invitationImages.slice() : [];
@@ -60,7 +91,7 @@
     const prev = $("#invite-prev");
     const next = $("#invite-next");
     if (prev) prev.disabled = inviteIndex === 0;
-    if (next) next.disabled = inviteIndex === pdfs.length - 1;
+    if (next) next.disabled = inviteIndex === imgs.length - 1;
   }
 
   function openInvitationViewer() {
@@ -109,6 +140,10 @@
 
     const invitationLink = $("#cover-invitation-link");
     invitationLink.hidden = invitationImageList().length === 0;
+
+    const rsvpBy = $("#cover-rsvp-by");
+    if (cfg.rsvpBy) { rsvpBy.textContent = cfg.rsvpBy; rsvpBy.hidden = false; }
+    else { rsvpBy.hidden = true; }
 
     const qrBlock = $("#cover-map-qr-block");
     const qrImg = $("#cover-map-qr");
@@ -295,34 +330,72 @@
 
   function renderTravel() {
     const t = cfg.travel || {};
+
+    // Map link to the venue (falls back to venue.mapUrl).
+    const mapLink = $("#travel-map-link");
+    const mapUrl = t.mapUrl || (cfg.venue && cfg.venue.mapUrl) || "";
+    if (mapUrl) {
+      mapLink.href = mapUrl;
+      mapLink.textContent = t.mapLabel || "Open in Google Maps";
+      mapLink.hidden = false;
+    } else {
+      mapLink.hidden = true;
+    }
+
     $("#travel-airport-name").textContent = (t.airport && t.airport.name) || "";
     $("#travel-airport-note").textContent = (t.airport && t.airport.note) || "";
+    $("#travel-station-name").textContent = (t.station && t.station.name) || "";
+    $("#travel-station-note").textContent = (t.station && t.station.note) || "";
     $("#travel-arrival").textContent = (t.arrival && t.arrival.suggested) || "";
     $("#travel-departure").textContent = (t.arrival && t.arrival.departure) || "";
 
-    const dl = $("#travel-transport");
-    dl.innerHTML = "";
-    (t.transport || []).forEach((row) => {
-      const dt = document.createElement("dt");
-      dt.textContent = row.label;
-      const dd = document.createElement("dd");
-      dd.textContent = row.description;
-      dl.appendChild(dt);
-      dl.appendChild(dd);
-    });
+    function fillDl(el, rows) {
+      el.innerHTML = "";
+      (rows || []).forEach((row) => {
+        const dt = document.createElement("dt");
+        dt.textContent = row.label;
+        const dd = document.createElement("dd");
+        dd.textContent = row.description != null ? row.description : row.value;
+        el.appendChild(dt);
+        el.appendChild(dd);
+      });
+    }
+
+    fillDl($("#travel-transport"), t.transport);
 
     const visaBlock = $("#travel-visa-block");
+    const visaLink = $("#travel-visa-link");
     if (t.visa && t.visa.body) {
       $("#travel-visa-heading").textContent = t.visa.heading || "Visa";
       $("#travel-visa-body").textContent = t.visa.body;
+      if (t.visa.linkUrl) {
+        visaLink.href = t.visa.linkUrl;
+        visaLink.textContent = t.visa.linkLabel || t.visa.linkUrl;
+        visaLink.hidden = false;
+      } else {
+        visaLink.hidden = true;
+      }
       visaBlock.hidden = false;
     } else {
       visaBlock.hidden = true;
     }
 
-    const notes = $("#travel-notes");
-    if (t.notes) { notes.textContent = t.notes; notes.hidden = false; }
-    else { notes.hidden = true; }
+    const usefulBlock = $("#travel-useful-block");
+    const usefulLink = $("#travel-useful-link");
+    if (t.useful && Array.isArray(t.useful.items) && t.useful.items.length) {
+      $("#travel-useful-heading").textContent = t.useful.heading || "Useful information";
+      fillDl($("#travel-useful"), t.useful.items);
+      if (t.useful.linkUrl) {
+        usefulLink.href = t.useful.linkUrl;
+        usefulLink.textContent = t.useful.linkLabel || t.useful.linkUrl;
+        usefulLink.hidden = false;
+      } else {
+        usefulLink.hidden = true;
+      }
+      usefulBlock.hidden = false;
+    } else {
+      usefulBlock.hidden = true;
+    }
   }
 
   // ---- Gift register -----------------------------------------------------
@@ -994,14 +1067,22 @@
 
     $("#rsvp-no").addEventListener("click", async () => {
       if (!validateRsvp()) return;
+      if (!confirmIfResubmitting()) return;
       set({
         attending: false,
         eventAttendees: {},
         eventCounts: {},
         allergies: ""
       });
-      await window.SUBMIT.submit();
-      window.ROUTER.go("gift");
+      const btn = $("#rsvp-no");
+      btn.disabled = true;
+      try {
+        await window.SUBMIT.submit();
+        recordSubmission();
+        window.ROUTER.go("gift");
+      } finally {
+        btn.disabled = false;
+      }
     });
 
     $("#event-back").addEventListener("click", () => {
@@ -1031,8 +1112,19 @@
     });
 
     $("#notes-submit").addEventListener("click", async () => {
-      await window.SUBMIT.submit();
-      window.ROUTER.go("thanks");
+      if (!confirmIfResubmitting()) return;
+      const btn = $("#notes-submit");
+      const orig = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Sending…";
+      try {
+        await window.SUBMIT.submit();
+        recordSubmission();
+        window.ROUTER.go("thanks");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = orig;
+      }
     });
 
     $("#thanks-gift-link").addEventListener("click", (e) => {
