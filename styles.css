@@ -259,6 +259,23 @@ p { margin: 8px 0 16px; }
 .btn-row.stack { flex-direction: column; align-items: stretch; }
 .btn-row .btn { flex: 1 1 auto; }
 
+.rsvp-choice-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+.rsvp-choice {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+}
+.rsvp-choice .btn { width: 100%; }
+.rsvp-choice .rsvp-helper {
+  text-align: center;
+  margin-top: 8px;
+}
+
 /* ---- Fields ------------------------------------------------------------- */
 
 .field {

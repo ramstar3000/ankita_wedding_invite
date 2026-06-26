@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:wght@500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./styles.css?v=20260626e" />
+  <link rel="stylesheet" href="./styles.css?v=20260626f" />
 </head>
 <body>
   <header class="brand-band" id="brand-band" hidden>
@@ -78,13 +78,6 @@
     <section data-step="rsvp" class="step" hidden>
       <h2>Can you join us?</h2>
 
-      <div class="btn-row">
-        <button id="rsvp-yes" class="btn btn-primary">Yes, we'll be there</button>
-        <button id="rsvp-no" class="btn btn-outline">Sadly, we can't make it</button>
-      </div>
-      <p class="muted rsvp-helper">We are delighted that you will be joining us, and we look forward to celebrating with you.</p>
-      <p class="muted rsvp-helper">We're sorry you won't be able to join us, but we really appreciate you letting us know.</p>
-
       <div class="field">
         <span>You're a guest of…</span>
         <div class="toggle-row">
@@ -106,6 +99,17 @@
       <div id="rsvp-party-names" hidden>
         <p class="muted small">Please share the names of the others joining you.</p>
         <div id="rsvp-party-names-list"></div>
+      </div>
+
+      <div class="rsvp-choice-row">
+        <div class="rsvp-choice">
+          <button id="rsvp-yes" class="btn btn-primary">Yes, we'll be there</button>
+          <p class="muted rsvp-helper">We are delighted that you will be joining us, and we look forward to celebrating with you.</p>
+        </div>
+        <div class="rsvp-choice">
+          <button id="rsvp-no" class="btn btn-outline">Sadly, we can't make it</button>
+          <p class="muted rsvp-helper">We're sorry you won't be able to join us, but we really appreciate you letting us know.</p>
+        </div>
       </div>
     </section>
 
@@ -313,10 +317,10 @@
     </div>
   </div>
 
-  <script src="./js/config.js?v=20260626e"></script>
-  <script src="./js/state.js?v=20260626e"></script>
-  <script src="./js/submit.js?v=20260626e"></script>
-  <script src="./js/main.js?v=20260626e"></script>
-  <script src="./js/router.js?v=20260626e"></script>
+  <script src="./js/config.js?v=20260626f"></script>
+  <script src="./js/state.js?v=20260626f"></script>
+  <script src="./js/submit.js?v=20260626f"></script>
+  <script src="./js/main.js?v=20260626f"></script>
+  <script src="./js/router.js?v=20260626f"></script>
 </body>
 </html>
