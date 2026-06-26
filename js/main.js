@@ -1131,6 +1131,10 @@
       e.preventDefault();
       window.ROUTER.go("gift");
     });
+    $("#thanks-travel-link").addEventListener("click", (e) => {
+      e.preventDefault();
+      window.ROUTER.go("travel");
+    });
 
     $("#thanks-download-ics").addEventListener("click", () => {
       const ids = attendingEventIds();
