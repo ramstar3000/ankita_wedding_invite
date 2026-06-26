@@ -121,8 +121,8 @@ window.WEDDING_CONFIG = {
       {
         label: "Self-drive",
         description:
-          "If you're driving, Sambrama has ample on-site parking for up to 250 cars. The Google Maps link on the " +
-          "cover page will take you directly to the venue entrance."
+          "If you're driving, Sambrama has ample on-site parking for up to 250 cars. The Google Maps link " +
+          "will take you directly to the venue entrance."
       }
     ],
     visa: {
