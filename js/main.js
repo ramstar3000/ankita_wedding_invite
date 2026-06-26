@@ -431,63 +431,6 @@
     return lines.join("\r\n");
   }
 
-  function buildSummaryText() {
-    const s = window.RSVP.state;
-    const members = partyMembers();
-    const memberNameByIndex = Object.fromEntries(members.map((m) => [m.index, m.name]));
-    const venue = cfg.venue || {};
-
-    const sideLabel = s.side === "bride" ? "Bride's side"
-                    : s.side === "groom" ? "Groom's side"
-                    : "—";
-
-    const lines = [
-      "Ankita & Shyam — Wedding RSVP confirmation",
-      "Submitted: " + (s.submittedAt ? new Date(s.submittedAt).toLocaleString() : ""),
-      "",
-      "Lead guest: " + (s.name || "(not provided)") + " (" + sideLabel + ")",
-      "Party size: " + (s.partySize || 1),
-      "Party names: " + members.map((m) => m.name).join(", "),
-      ""
-    ];
-
-    if (s.attending === false) {
-      lines.push("Reply: Sadly cannot make it");
-    } else {
-      lines.push("Reply: Attending");
-      lines.push("");
-      lines.push("Events:");
-      (cfg.events || []).forEach((ev) => {
-        const indices = Array.isArray(s.eventAttendees[ev.id])
-          ? s.eventAttendees[ev.id].filter((i) => memberNameByIndex[i] != null)
-          : [];
-        const names = indices.map((i) => memberNameByIndex[i]);
-        lines.push("");
-        lines.push("  " + ev.name);
-        lines.push("    When:       " + [ev.date, ev.time].filter(Boolean).join(", "));
-        if (ev.meals) lines.push("    Meals:      " + ev.meals);
-        if (ev.dressCode) lines.push("    Dress code: " + ev.dressCode);
-        lines.push("    Attending:  " + (names.length ? names.join(", ") + " (" + names.length + ")" : "No one"));
-      });
-      if (s.allergies) {
-        lines.push("");
-        lines.push("Allergies / food notes: " + s.allergies);
-      }
-    }
-
-    lines.push("");
-    lines.push("Venue: " + (venue.name || ""));
-    if (venue.address) lines.push("       " + venue.address);
-    if (venue.mapUrl)  lines.push("Map:   " + venue.mapUrl);
-    if (s.email) {
-      lines.push("");
-      lines.push("Contact email on file: " + s.email);
-    }
-    if (s.phone) lines.push("Contact phone on file: " + s.phone);
-
-    return lines.join("\n");
-  }
-
   function attendingEventIds() {
     const s = window.RSVP.state;
     const out = [];
@@ -507,64 +450,99 @@
       : `Thank you${name} for letting us know.`;
 
     const summary = $("#thanks-summary");
-    const list = $("#thanks-summary-list");
+    const topList = $("#thanks-summary-list");
+    const eventsWrap = $("#thanks-summary-events");
+    const detailsList = $("#thanks-summary-details");
     const emailNote = $("#thanks-email-note");
 
     const downloads = $("#thanks-downloads");
     const icsBtn = $("#thanks-download-ics");
 
-    if (!state.attending) {
-      summary.hidden = true;
-      emailNote.hidden = true;
-      // Non-attendees still get the summary download (a receipt of their reply).
-      // No iCal — nothing to add to the calendar.
-      downloads.hidden = false;
-      icsBtn.hidden = true;
-      return;
-    }
-    downloads.hidden = false;
-    icsBtn.hidden = false;
+    topList.innerHTML = "";
+    eventsWrap.innerHTML = "";
+    detailsList.innerHTML = "";
 
-    list.innerHTML = "";
-
-    function row(label, value) {
+    function row(listEl, label, value) {
+      if (!value) return;
       const dt = document.createElement("dt");
       dt.textContent = label;
       const dd = document.createElement("dd");
       dd.textContent = value;
-      list.appendChild(dt);
-      list.appendChild(dd);
+      listEl.appendChild(dt);
+      listEl.appendChild(dd);
     }
 
     const sideLabel = state.side === "bride" ? "Bride's side"
                     : state.side === "groom" ? "Groom's side"
                     : "—";
-    row("Guest of", sideLabel);
-    row("Party size", String(state.partySize || 1));
-    if (state.partyNames && state.partyNames.filter(Boolean).length) {
-      row("Names", [state.name].concat(state.partyNames.filter(Boolean)).join(", "));
+
+    if (!state.attending) {
+      row(topList, "Reply", "Sadly can't make it");
+      row(topList, "Guest of", sideLabel);
+      if (state.name) row(topList, "Name", state.name);
+      summary.hidden = false;
+      // Nothing to add to a calendar for a decline.
+      downloads.hidden = true;
+      emailNote.hidden = true;
+      return;
     }
 
+    row(topList, "Guest of", sideLabel);
+    row(topList, "Party size", String(state.partySize || 1));
+    if (state.partyNames && state.partyNames.filter(Boolean).length) {
+      row(topList, "Names", [state.name].concat(state.partyNames.filter(Boolean)).join(", "));
+    }
+
+    // Per-event details — only events the party is actually attending, with
+    // the full when/meals/dress code so guests don't need the invitation again.
     const members = partyMembers();
     const memberNameByIndex = Object.fromEntries(members.map((m) => [m.index, m.name]));
-    (cfg.events || []).forEach((ev) => {
-      const indices = Array.isArray(state.eventAttendees[ev.id])
-        ? state.eventAttendees[ev.id].filter((i) => memberNameByIndex[i] != null)
-        : [];
-      if (indices.length === 0) {
-        row(ev.name, "No one attending");
-      } else {
-        const names = indices.map((i) => memberNameByIndex[i]).join(", ");
-        row(ev.name, `${names} (${indices.length})`);
-      }
+    const attendedEvents = (cfg.events || []).filter((ev) => {
+      const arr = state.eventAttendees[ev.id];
+      return Array.isArray(arr) && arr.filter((i) => memberNameByIndex[i] != null).length > 0;
     });
 
-    if (state.allergies) row("Allergies / food notes", state.allergies);
+    if (attendedEvents.length) {
+      const heading = document.createElement("p");
+      heading.className = "summary-subheading";
+      heading.textContent = "Events you're joining";
+      eventsWrap.appendChild(heading);
+
+      attendedEvents.forEach((ev) => {
+        const indices = state.eventAttendees[ev.id].filter((i) => memberNameByIndex[i] != null);
+        const names = indices.map((i) => memberNameByIndex[i]);
+
+        const block = document.createElement("div");
+        block.className = "summary-event";
+        const nameEl = document.createElement("p");
+        nameEl.className = "summary-event-name";
+        nameEl.textContent = ev.name;
+        block.appendChild(nameEl);
+
+        const dl = document.createElement("dl");
+        dl.className = "summary-list summary-event-dl";
+        row(dl, "When", [ev.date, ev.time].filter(Boolean).join(" · "));
+        row(dl, "Meals", ev.meals);
+        row(dl, "Dress code", ev.dressCode);
+        row(dl, "Who's coming", names.join(", ") + " (" + names.length + ")");
+        block.appendChild(dl);
+        eventsWrap.appendChild(block);
+      });
+    }
+
+    // Remaining details + venue, so the page is a complete record.
+    if (state.allergies) row(detailsList, "Allergies / food notes", state.allergies);
+    if (state.email) row(detailsList, "Email", state.email);
+    if (state.phone) row(detailsList, "Phone", state.phone);
+    const venue = cfg.venue || {};
+    if (venue.name) row(detailsList, "Venue", [venue.name, venue.address].filter(Boolean).join(", "));
 
     summary.hidden = false;
+    downloads.hidden = false;
+    icsBtn.hidden = false;
 
     if (state.email) {
-      emailNote.textContent = `A copy has been recorded against ${state.email}.`;
+      emailNote.textContent = `We've saved your details — we'll only use ${state.email} if we need to reach you.`;
       emailNote.hidden = false;
     } else {
       emailNote.hidden = true;
@@ -1060,11 +1038,6 @@
     $("#thanks-gift-link").addEventListener("click", (e) => {
       e.preventDefault();
       window.ROUTER.go("gift");
-    });
-
-    $("#thanks-download-summary").addEventListener("click", () => {
-      const name = (state.name || "guest").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
-      downloadBlob(`rsvp-${name}.txt`, "text/plain", buildSummaryText());
     });
 
     $("#thanks-download-ics").addEventListener("click", () => {

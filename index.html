@@ -32,8 +32,8 @@
         <p class="cover-date" id="cover-date">TBC</p>
 
         <div class="cover-actions btn-row stack">
-          <button id="cover-rsvp-btn" class="btn btn-primary">RSVP</button>
           <button id="cover-invitation-link" type="button" class="btn btn-outline" hidden>View invitation</button>
+          <button id="cover-rsvp-btn" class="btn btn-primary">RSVP</button>
         </div>
 
         <div class="qr-block" id="cover-map-qr-block" hidden>
@@ -128,7 +128,7 @@
       </label>
 
       <label class="field">
-        <span>Email — we'll send a summary of your RSVP</span>
+        <span>Email (so we can reach you if needed)</span>
         <input id="notes-email" type="email" autocomplete="email" placeholder="you@example.com" />
       </label>
 
@@ -139,7 +139,7 @@
 
       <div class="btn-row">
         <button id="notes-back" class="btn btn-ghost">Back</button>
-        <button id="notes-submit" class="btn btn-primary">Send RSVP</button>
+        <button id="notes-submit" class="btn btn-primary">Submit</button>
       </div>
     </section>
 
@@ -151,11 +151,12 @@
       <div id="thanks-summary" class="summary-card" hidden>
         <h3 class="summary-heading">Your RSVP</h3>
         <dl id="thanks-summary-list" class="summary-list"></dl>
+        <div id="thanks-summary-events"></div>
+        <dl id="thanks-summary-details" class="summary-list"></dl>
         <p class="muted small" id="thanks-email-note" hidden></p>
       </div>
 
       <div class="btn-row thanks-downloads" id="thanks-downloads" hidden>
-        <button id="thanks-download-summary" class="btn btn-outline" type="button">Download RSVP summary</button>
         <button id="thanks-download-ics" class="btn btn-outline" type="button">Add events to calendar</button>
       </div>
 
