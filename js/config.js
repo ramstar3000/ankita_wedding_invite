@@ -149,7 +149,7 @@ window.WEDDING_CONFIG = {
   },
 
   rsvp: {
-    endpoint: "https://script.google.com/macros/s/AKfycbyNrojWeAjwX3EIVjekhBWmr0R36LrOBDJhCDY6w85-VotAz4aARknxKOQJggAh05Vi/exec",
+    endpoint: "https://script.google.com/macros/s/AKfycbw4_BwXW5veRL9tfnB9WwP_Gs9a07ZgBADbuCF1QhdUQ4m63VKpt41j_IRODSxUmQBu/exec",
     mailtoAddress: "you@example.com"
   }
 };

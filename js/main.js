@@ -38,6 +38,24 @@
     );
   }
 
+  // Reads what the server actually did after the write and surfaces it.
+  // Returns true if the caller should proceed (navigate to thanks etc.),
+  // false if the submission was rejected and the guest needs to retry.
+  function handleSubmitResult(result) {
+    if (!result || result.ok === false) {
+      const reason = (result && result.error) ? `\n\n${result.error}` : "";
+      window.alert(
+        "We couldn't save your RSVP. Please check your connection and try again." +
+        reason
+      );
+      return false;
+    }
+    if (result.updated) {
+      window.alert("Thanks — your previous response has been updated.");
+    }
+    return true;
+  }
+
   // Invitation images in display order (filters out any blanks).
   function invitationImageList() {
     const list = Array.isArray(cfg.invitationImages) ? cfg.invitationImages.slice() : [];
@@ -1088,7 +1106,8 @@
       const btn = $("#rsvp-no");
       btn.disabled = true;
       try {
-        await window.SUBMIT.submit();
+        const result = await window.SUBMIT.submit();
+        if (!handleSubmitResult(result)) return;
         recordSubmission();
         window.ROUTER.go("gift");
       } finally {
@@ -1129,7 +1148,8 @@
       btn.disabled = true;
       btn.textContent = "Sending…";
       try {
-        await window.SUBMIT.submit();
+        const result = await window.SUBMIT.submit();
+        if (!handleSubmitResult(result)) return;
         recordSubmission();
         window.ROUTER.go("thanks");
       } finally {

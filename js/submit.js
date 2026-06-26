@@ -99,11 +99,23 @@
           redirect: "follow"
         });
         if (!res.ok) throw new Error("HTTP " + res.status);
+
+        // Read-after-write check: parse the server's response so we know
+        // whether the row was newly appended or overwrote an existing match
+        // (server-side de-dup on name+email), and so we can surface a real
+        // error if the script rejected the submission (ok: false).
+        let body = null;
+        try { body = await res.json(); } catch (e) { /* pre-dedup script may not return JSON */ }
+        if (body && body.ok === false) {
+          throw new Error(body.error || "Server rejected the submission");
+        }
         window.RSVP.set({ submittedAt: payload.submittedAt });
-        return { ok: true, via: "endpoint" };
+        return { ok: true, via: "endpoint", updated: !!(body && body.updated) };
       } catch (err) {
-        // Fall through to mailto so the guest can still get their reply through.
-        console.warn("RSVP endpoint failed, falling back to mailto:", err);
+        // Surface to caller so the UI can show a warning instead of silently
+        // falling back to mailto (which the guest would never notice).
+        console.warn("RSVP endpoint failed:", err);
+        return { ok: false, via: "endpoint", error: String(err && err.message || err) };
       }
     }
 
