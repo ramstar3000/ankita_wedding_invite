@@ -112,6 +112,13 @@ window.WEDDING_CONFIG = {
           "we recommend arranging your return journey in advance."
       },
       {
+        label: "Metro",
+        description:
+          "Namma Metro's Green Line runs south down Kanakapura Road to its terminus at Silk Institute (Anjanapura). " +
+          "It's a quick, traffic-free way to cross the city; from Silk Institute it's roughly 20 km (about 40 minutes) " +
+          "by cab or auto to Sambrama for the final stretch."
+      },
+      {
         label: "Self-drive",
         description:
           "If you're driving, Sambrama has ample on-site parking for up to 250 cars. The Google Maps link on the " +
