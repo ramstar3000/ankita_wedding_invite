@@ -101,6 +101,13 @@ p { margin: 8px 0 16px; }
   margin: 4px 0;
 }
 
+.cover-invite-line {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.25rem;
+  color: var(--accent-dark);
+  margin: 0 0 18px;
+}
 .cover-date {
   font-family: var(--serif);
   font-size: 1.3rem;
