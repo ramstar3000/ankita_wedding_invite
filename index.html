@@ -32,7 +32,7 @@
 
         <div class="cover-actions btn-row stack">
           <button id="cover-rsvp-btn" class="btn btn-primary">RSVP</button>
-          <a id="cover-invitation-link" class="btn btn-outline" target="_blank" rel="noopener" hidden>View your invitation</a>
+          <button id="cover-invitation-link" type="button" class="btn btn-outline" hidden>View invitation</button>
         </div>
 
         <div class="qr-block" id="cover-map-qr-block" hidden>
@@ -273,6 +273,23 @@
     </section>
 
   </main>
+
+  <!-- Invitation viewer — slides up from the bottom -->
+  <div class="invite-viewer" id="invite-viewer" hidden aria-hidden="true">
+    <div class="invite-viewer-backdrop" id="invite-viewer-backdrop"></div>
+    <div class="invite-viewer-panel" role="dialog" aria-modal="true" aria-label="Wedding invitation">
+      <div class="invite-viewer-head">
+        <span class="invite-viewer-title">Our invitation</span>
+        <button id="invite-viewer-close" class="invite-viewer-close" type="button" aria-label="Close invitation">&times;</button>
+      </div>
+      <div class="invite-viewer-track" id="invite-viewer-track"></div>
+      <div class="invite-viewer-nav" id="invite-viewer-nav" hidden>
+        <button id="invite-prev" class="btn btn-ghost invite-nav-btn" type="button" aria-label="Previous invitation">‹</button>
+        <span class="invite-viewer-dots" id="invite-viewer-dots"></span>
+        <button id="invite-next" class="btn btn-ghost invite-nav-btn" type="button" aria-label="Next invitation">›</button>
+      </div>
+    </div>
+  </div>
 
   <script src="./js/config.js"></script>
   <script src="./js/state.js"></script>

@@ -8,6 +8,82 @@
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $$(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
 
+  // Invitation images in display order (filters out any blanks).
+  function invitationImageList() {
+    const list = Array.isArray(cfg.invitationImages) ? cfg.invitationImages.slice() : [];
+    return list.filter(Boolean);
+  }
+
+  // ---- Invitation viewer (slides up from the bottom) ---------------------
+
+  let inviteIndex = 0;
+  let inviteBuilt = false;
+
+  function buildInvitationViewer() {
+    if (inviteBuilt) return;
+    const imgs = invitationImageList();
+    if (!imgs.length) return;
+
+    const track = $("#invite-viewer-track");
+    const dots = $("#invite-viewer-dots");
+    track.innerHTML = "";
+    dots.innerHTML = "";
+
+    imgs.forEach((src, i) => {
+      const slide = document.createElement("div");
+      slide.className = "invite-slide";
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = "Invitation " + (i + 1);
+      img.loading = i === 0 ? "eager" : "lazy";
+      slide.appendChild(img);
+      track.appendChild(slide);
+
+      const dot = document.createElement("span");
+      dot.className = "invite-dot";
+      dots.appendChild(dot);
+    });
+
+    $("#invite-viewer-nav").hidden = imgs.length < 2;
+    inviteBuilt = true;
+    goToInvite(0);
+  }
+
+  function goToInvite(i) {
+    const imgs = invitationImageList();
+    inviteIndex = Math.max(0, Math.min(i, imgs.length - 1));
+    const track = $("#invite-viewer-track");
+    $$(".invite-slide", track).forEach((s) => {
+      s.style.transform = `translateX(${-100 * inviteIndex}%)`;
+    });
+    $$(".invite-dot").forEach((d, di) => d.classList.toggle("is-active", di === inviteIndex));
+    const prev = $("#invite-prev");
+    const next = $("#invite-next");
+    if (prev) prev.disabled = inviteIndex === 0;
+    if (next) next.disabled = inviteIndex === pdfs.length - 1;
+  }
+
+  function openInvitationViewer() {
+    buildInvitationViewer();
+    const viewer = $("#invite-viewer");
+    viewer.hidden = false;
+    viewer.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    // Next frame so the transition runs from the off-screen start state.
+    requestAnimationFrame(() => viewer.classList.add("is-open"));
+  }
+
+  function closeInvitationViewer() {
+    const viewer = $("#invite-viewer");
+    viewer.classList.remove("is-open");
+    viewer.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    const onDone = () => { viewer.hidden = true; };
+    // Wait for the slide-down to finish before hiding outright.
+    viewer.querySelector(".invite-viewer-panel")
+      .addEventListener("transitionend", onDone, { once: true });
+  }
+
   // ---- Brand band (logo across pages) ------------------------------------
 
   function renderBrand() {
@@ -32,12 +108,7 @@
     $("#cover-date").textContent = cfg.date;
 
     const invitationLink = $("#cover-invitation-link");
-    if (cfg.invitationPdf) {
-      invitationLink.href = cfg.invitationPdf;
-      invitationLink.hidden = false;
-    } else {
-      invitationLink.hidden = true;
-    }
+    invitationLink.hidden = invitationImageList().length === 0;
 
     const qrBlock = $("#cover-map-qr-block");
     const qrImg = $("#cover-map-qr");
@@ -901,6 +972,17 @@
 
   function wireButtons() {
     $("#cover-rsvp-btn").addEventListener("click", () => window.ROUTER.go("rsvp"));
+    $("#cover-invitation-link").addEventListener("click", () => openInvitationViewer());
+    $("#invite-viewer-close").addEventListener("click", () => closeInvitationViewer());
+    $("#invite-viewer-backdrop").addEventListener("click", () => closeInvitationViewer());
+    $("#invite-prev").addEventListener("click", () => goToInvite(inviteIndex - 1));
+    $("#invite-next").addEventListener("click", () => goToInvite(inviteIndex + 1));
+    document.addEventListener("keydown", (e) => {
+      if ($("#invite-viewer").hidden) return;
+      if (e.key === "Escape") closeInvitationViewer();
+      else if (e.key === "ArrowLeft") goToInvite(inviteIndex - 1);
+      else if (e.key === "ArrowRight") goToInvite(inviteIndex + 1);
+    });
     $("#cover-gift-link").addEventListener("click", (e) => {
       e.preventDefault();
       window.ROUTER.go("gift");

@@ -17,10 +17,16 @@ window.WEDDING_CONFIG = {
   // (PNG also fine — update the extension). Leave blank to hide the brand band.
   logoSrc: "./assets/logo.png",
 
-  // Path or URL to the invitation card PDF. When set, a 'View invitation'
-  // button appears on the cover. Drop your file at ./assets/invitation.pdf
-  // and set the path below.
-  invitationPdf: "",
+  // Invitation card images, shown in display order. When at least one is set,
+  // a 'View invitation' button appears on the cover; tapping it slides a
+  // viewer up from the bottom with the images as a swipeable carousel.
+  // Drop the images in ./assets/ and list them here in the order to show.
+  invitationImages: [
+    "./assets/invite-1.jpg",
+    "./assets/invite-2.jpg",
+    "./assets/invite-3.jpg",
+    "./assets/invite-4.jpg"
+  ],
 
   // Pre-generated QR code SVG pointing at venue.mapUrl. Generate once with e.g.
   //   qrencode -t svg -o assets/map-qr.svg "<map url>"
