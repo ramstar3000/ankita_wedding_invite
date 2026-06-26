@@ -8,24 +8,23 @@
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $$(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
 
-  // ---- Duplicate-submission guard ----------------------------------------
-  // We remember (in localStorage, so it survives across visits on this device)
-  // that an RSVP was sent. A returning guest is asked to confirm before sending
-  // again, and the server upserts on name+email so a re-send updates their row
-  // rather than creating a duplicate.
-  const SUBMIT_KEY = "ankita_wedding_submitted_v1";
+  // ---- Saved submission (localStorage) -----------------------------------
+  // After an RSVP is sent we keep a full snapshot of the guest's answers in
+  // localStorage, which (unlike sessionStorage) survives closing the tab. This
+  // powers two things: the duplicate-submission guard, and the cover's
+  // "View your RSVP" button that re-opens the summary on a return visit.
+  const SAVED_KEY = "ankita_wedding_rsvp_saved_v1";
 
   function priorSubmission() {
-    try { return JSON.parse(localStorage.getItem(SUBMIT_KEY) || "null"); }
-    catch (e) { return null; }
+    try {
+      const obj = JSON.parse(localStorage.getItem(SAVED_KEY) || "null");
+      return obj && obj.submittedAt ? obj : null;
+    } catch (e) { return null; }
   }
 
   function recordSubmission() {
     try {
-      localStorage.setItem(SUBMIT_KEY, JSON.stringify({
-        submittedAt: state.submittedAt || new Date().toISOString(),
-        name: state.name || ""
-      }));
+      localStorage.setItem(SAVED_KEY, JSON.stringify(state));
     } catch (e) { /* storage disabled — the server upsert still dedupes */ }
   }
 
@@ -144,6 +143,10 @@
     const rsvpBy = $("#cover-rsvp-by");
     if (cfg.rsvpBy) { rsvpBy.textContent = cfg.rsvpBy; rsvpBy.hidden = false; }
     else { rsvpBy.hidden = true; }
+
+    // Returning guest who has already submitted on this device → offer a quick
+    // way back to their summary.
+    $("#cover-view-rsvp").hidden = !priorSubmission();
 
     const qrBlock = $("#cover-map-qr-block");
     const qrImg = $("#cover-map-qr");
@@ -1010,6 +1013,14 @@
 
   function wireButtons() {
     $("#cover-rsvp-btn").addEventListener("click", () => window.ROUTER.go("rsvp"));
+    $("#cover-view-rsvp").addEventListener("click", () => {
+      const saved = priorSubmission();
+      if (!saved) return;
+      // Restore the saved answers into live state so the summary renders fully,
+      // even if this session's sessionStorage was empty (e.g. a return visit).
+      set(saved);
+      window.ROUTER.go("thanks");
+    });
     $("#cover-invitation-link").addEventListener("click", () => openInvitationViewer());
     $("#invite-viewer-close").addEventListener("click", () => closeInvitationViewer());
     $("#invite-viewer-backdrop").addEventListener("click", () => closeInvitationViewer());
