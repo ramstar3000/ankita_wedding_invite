@@ -109,14 +109,15 @@ p { margin: 8px 0 16px; }
 .cover-prelude {
   font-family: var(--serif);
   font-style: italic;
+  font-size: 1.25rem;
   color: var(--pink);
   margin: 0 0 12px;
 }
 
 .cover-names {
   font-family: var(--display);
-  font-size: clamp(2rem, 7vw, 2.9rem);
-  line-height: 1.18;
+  font-size: clamp(2.8rem, 12vw, 4.6rem);
+  line-height: 1.12;
   letter-spacing: 0.03em;
   margin: 0 0 18px;
   font-weight: 600;
@@ -143,6 +144,7 @@ p { margin: 8px 0 16px; }
 .cover-date {
   font-family: var(--serif);
   font-size: 1.3rem;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--gold);
@@ -162,9 +164,11 @@ p { margin: 8px 0 16px; }
 }
 .cover-rsvp-by {
   margin: 0 0 4px;
-  color: var(--pink-dark);
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--pink);
+  font-weight: 500;
+  font-size: 1.25rem;
   letter-spacing: 0.01em;
 }
 .cover-view-rsvp {
@@ -227,6 +231,18 @@ p { margin: 8px 0 16px; }
   color: var(--ink-soft);
 }
 .btn-ghost:hover { color: var(--ink); }
+
+.btn-gold {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: white;
+  box-shadow: 0 4px 14px rgba(154, 123, 60, 0.30);
+}
+.btn-gold:hover {
+  background: #876930;
+  transform: translateY(-1px);
+  box-shadow: 0 7px 20px rgba(154, 123, 60, 0.38);
+}
 
 .btn-row {
   display: flex;
