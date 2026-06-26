@@ -120,10 +120,10 @@ p { margin: 8px 0 16px; }
 }
 
 .cover-names {
-  font-family: var(--display);
+  font-family: "Playfair Display", var(--serif);
   font-size: clamp(2.8rem, 12vw, 4.6rem);
   line-height: 1.12;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.01em;
   margin: 0 0 18px;
   font-weight: 600;
   color: var(--gold);
@@ -131,8 +131,8 @@ p { margin: 8px 0 16px; }
 
 .cover-names .amp {
   display: block;
-  /* Keep the elegant italic ampersand in the serif (Cinzel has no italic). */
-  font-family: var(--serif);
+  /* Playfair Display's italic ampersand is especially elegant. */
+  font-family: "Playfair Display", var(--serif);
   font-style: italic;
   letter-spacing: 0;
   color: var(--pink);
