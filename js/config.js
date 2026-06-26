@@ -72,8 +72,10 @@ window.WEDDING_CONFIG = {
 
   gifts: {
     message:
-      "Your presence at the wedding is more than enough. If you'd still like to mark " +
-      "the occasion with a gift, a few options below — please don't feel obliged.",
+      "Your love, blessings, and presence at our wedding are the greatest gifts we " +
+      "could ask for, and celebrating this special day with you means the world to us.\n\n" +
+      "Should you still wish to bless us with a gift, we have set up a simple gift fund, " +
+      "the details of which can be found below.",
     registryLinks: [],
     // GPay QR shown alongside the bank details once the guest opts in.
     // Replace assets/gpay-qr.svg with the real QR (PNG/SVG both fine), or
