@@ -77,21 +77,13 @@ window.WEDDING_CONFIG = {
       "Should you still wish to bless us with a gift, we have set up a simple gift fund, " +
       "the details of which can be found below.",
     registryLinks: [],
-    // GPay QR shown alongside the bank details once the guest opts in.
-    // Replace assets/gpay-qr.svg with the real QR (PNG/SVG both fine), or
-    // leave blank to hide the QR block.
-    gpayQrSrc: "./assets/gpay-qr.svg",
+    // Single payment method — shown when the guest opens the gift-fund details.
     bankDetails:
-      "GPay:    TBC\n" +
-      "UPI ID:  ankita-shyam@TBC\n" +
-      "Bank transfer (India):\n" +
-      "  Account name:   TBC\n" +
-      "  Account number: TBC\n" +
-      "  IFSC:           TBC\n" +
-      "International transfer (UK):\n" +
-      "  Account name:   TBC\n" +
-      "  Sort code:      TBC\n" +
-      "  Account number: TBC"
+      "Account name:    Ankita Vinjamuri\n" +
+      "Sort code:       23-01-63\n" +
+      "Account number:  02536136\n" +
+      "IBAN:            GB73REVO23016302536136\n" +
+      "BIC/SWIFT code:  REVOGB21"
   },
 
   travel: {

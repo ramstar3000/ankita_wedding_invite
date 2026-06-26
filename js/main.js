@@ -344,25 +344,12 @@
 
     const alt = $("#gift-alt");
     const bank = $("#gift-bank");
-    const reveal = $("#gift-reveal-bank");
-    const gpayQrBlock = $("#gift-gpay-qr-block");
-    const gpayQrImg = $("#gift-gpay-qr");
-    if (cfg.gifts.gpayQrSrc) {
-      gpayQrImg.src = cfg.gifts.gpayQrSrc;
-      gpayQrImg.addEventListener("error", () => { gpayQrBlock.hidden = true; }, { once: true });
-    }
     if (cfg.gifts.bankDetails) {
       bank.textContent = cfg.gifts.bankDetails;
-      // Reset to gated state every time the page is shown — the guest opts in
-      // by opening the disclosure and clicking through each visit.
-      bank.hidden = true;
-      gpayQrBlock.hidden = true;
-      reveal.hidden = false;
-      reveal.textContent = "I'd like to contribute to a money gift";
+      // The disclosure itself is the gate — start collapsed, details show on click.
       alt.open = false;
       alt.hidden = false;
     } else {
-      // Nothing to gate; hide the whole disclosure to avoid an empty block.
       alt.hidden = true;
     }
   }
@@ -1092,14 +1079,6 @@
 
     $("#gift-back").addEventListener("click", () => {
       window.ROUTER.go(state.submittedAt ? "thanks" : "cover");
-    });
-
-    $("#gift-reveal-bank").addEventListener("click", () => {
-      const bank = $("#gift-bank");
-      const btn = $("#gift-reveal-bank");
-      bank.hidden = false;
-      btn.hidden = true;
-      if (cfg.gifts.gpayQrSrc) $("#gift-gpay-qr-block").hidden = false;
     });
 
     $("#travel-back").addEventListener("click", () => window.ROUTER.go("cover"));
