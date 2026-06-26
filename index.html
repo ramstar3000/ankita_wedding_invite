@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./styles.css?v=20260626b" />
+  <link rel="stylesheet" href="./styles.css?v=20260626c" />
 </head>
 <body>
   <header class="brand-band" id="brand-band" hidden>
@@ -78,11 +78,18 @@
     <section data-step="rsvp" class="step" hidden>
       <h2>Can you join us?</h2>
 
+      <div class="btn-row">
+        <button id="rsvp-yes" class="btn btn-primary">Yes, we'll be there</button>
+        <button id="rsvp-no" class="btn btn-outline">Sadly, we can't make it</button>
+      </div>
+      <p class="muted rsvp-helper">We are delighted that you will be joining us, and we look forward to celebrating with you.</p>
+      <p class="muted rsvp-helper">We're sorry you won't be able to join us, but we really appreciate you letting us know.</p>
+
       <div class="field">
         <span>You're a guest of…</span>
         <div class="toggle-row">
-          <button type="button" id="side-bride" class="btn btn-outline side-btn" data-side="bride">Bride's side</button>
-          <button type="button" id="side-groom" class="btn btn-outline side-btn" data-side="groom">Groom's side</button>
+          <button type="button" id="side-bride" class="btn side-btn" data-side="bride">Bride's side</button>
+          <button type="button" id="side-groom" class="btn side-btn" data-side="groom">Groom's side</button>
         </div>
       </div>
 
@@ -92,7 +99,7 @@
       </label>
 
       <label class="field">
-        <span>How many people will attend in total? (Including you)</span>
+        <span>Number of guests in your party (including you)</span>
         <input id="rsvp-party-size" type="number" min="1" max="20" step="1" inputmode="numeric" value="1" />
       </label>
 
@@ -100,12 +107,6 @@
         <p class="muted small">Please share the names of the others joining you.</p>
         <div id="rsvp-party-names-list"></div>
       </div>
-
-      <div class="btn-row">
-        <button id="rsvp-yes" class="btn btn-primary">Yes, we'll be there</button>
-        <button id="rsvp-no" class="btn btn-outline">Sadly, we can't make it</button>
-      </div>
-      <p class="muted small">We're sorry you won't be able to join us, but we really appreciate you letting us know.</p>
     </section>
 
     <!-- 3. Event page (dynamic — one per cfg.events entry) -->
@@ -312,10 +313,10 @@
     </div>
   </div>
 
-  <script src="./js/config.js?v=20260626b"></script>
-  <script src="./js/state.js?v=20260626b"></script>
-  <script src="./js/submit.js?v=20260626b"></script>
-  <script src="./js/main.js?v=20260626b"></script>
-  <script src="./js/router.js?v=20260626b"></script>
+  <script src="./js/config.js?v=20260626c"></script>
+  <script src="./js/state.js?v=20260626c"></script>
+  <script src="./js/submit.js?v=20260626c"></script>
+  <script src="./js/main.js?v=20260626c"></script>
+  <script src="./js/router.js?v=20260626c"></script>
 </body>
 </html>

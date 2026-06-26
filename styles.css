@@ -70,6 +70,11 @@ h2 {
 p { margin: 8px 0 16px; }
 .muted { color: var(--ink-soft); }
 .small { font-size: 0.9rem; }
+.rsvp-helper {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 6px 0 0;
+}
 
 .link {
   color: var(--pink-dark);
@@ -296,11 +301,14 @@ p { margin: 8px 0 16px; }
 .toggle-row .side-btn {
   flex: 1 1 0;
   padding: 10px 12px;
+  background: transparent;
+  border-color: var(--gold);
+  color: var(--gold);
 }
 .side-btn.is-active {
-  background: var(--accent);
+  background: var(--gold);
   color: white;
-  border-color: var(--accent);
+  border-color: var(--gold);
 }
 
 /* ---- Brand band (logo across pages) ------------------------------------ */
