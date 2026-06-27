@@ -1069,6 +1069,36 @@
     $("#invite-viewer-backdrop").addEventListener("click", () => closeInvitationViewer());
     $("#invite-prev").addEventListener("click", () => goToInvite(inviteIndex - 1));
     $("#invite-next").addEventListener("click", () => goToInvite(inviteIndex + 1));
+
+    // Touch swipe — drag left/right on the images to change slide.
+    const swipeArea = $("#invite-viewer-track");
+    if (swipeArea) {
+      let startX = 0;
+      let startY = 0;
+      let tracking = false;
+      const SWIPE_THRESHOLD = 40; // px of horizontal travel to count as a swipe
+
+      swipeArea.addEventListener("touchstart", (e) => {
+        if (e.touches.length !== 1) { tracking = false; return; }
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        tracking = true;
+      }, { passive: true });
+
+      swipeArea.addEventListener("touchend", (e) => {
+        if (!tracking) return;
+        tracking = false;
+        const touch = e.changedTouches[0];
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+        // Only treat as a swipe when the gesture is mostly horizontal.
+        if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+          if (dx < 0) goToInvite(inviteIndex + 1);
+          else goToInvite(inviteIndex - 1);
+        }
+      }, { passive: true });
+    }
+
     document.addEventListener("keydown", (e) => {
       if ($("#invite-viewer").hidden) return;
       if (e.key === "Escape") closeInvitationViewer();
