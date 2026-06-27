@@ -96,18 +96,19 @@ window.WEDDING_CONFIG = {
     mapUrl: "https://www.google.com/maps/search/?api=1&query=Sambrama+by+Swanlines+Kaggalipura+Bengaluru",
     airport: {
       name: "Kempegowda International Airport (BLR)",
-      address: "KIAL Road, Devanahalli, Bengaluru, Karnataka 560300",
-      distance: "About 65 km from Sambrama — roughly 2 to 2.5 hours by road, as the airport is north of the city and the venue lies to the south on Kanakapura Road."
+      note: "Approximately 65 km from Sambrama (around 1–2 hours by road)."
     },
     station: {
-      name: "KSR Bengaluru City Junction (SBC) — Krantivira Sangolli Rayanna",
-      address: "Gubbi Thotadappa Road, Majestic, Bengaluru, Karnataka 560023",
-      distance: "Bengaluru's main railway station, about 35 km from Sambrama — roughly 1 to 1.5 hours by road depending on traffic."
+      name: "KSR Bengaluru City Junction (Majestic)",
+      note: "Approximately 35 km from Sambrama (around 1–1.5 hours by road, depending on traffic)."
+    },
+    busStation: {
+      name: "Kempegowda Bus Station (Majestic)",
+      note: "Approximately 35 km from Sambrama (around 1–1.5 hours by road, depending on traffic)."
     },
     metro: {
-      name: "Namma Metro — Green Line",
-      address: "Nearest terminus: Silk Institute (Anjanapura), Kanakapura Road, Bengaluru",
-      distance: "The Green Line runs south down Kanakapura Road to its terminus at Silk Institute (Anjanapura) — a quick, traffic-free way to cross the city. From there it's about 20 km (roughly 40 minutes) by cab or auto to Sambrama for the final stretch."
+      name: "Silk Institute (Anjanapura) – Namma Metro Green Line",
+      note: "Approximately 7 km from Sambrama (around 10–15 minutes by road)."
     },
     arrival: {
       suggested: "We recommend arriving in Bengaluru by Wednesday, 18 November, so you have plenty of time to settle in before the Haldi ceremony on Thursday morning.",
@@ -115,17 +116,16 @@ window.WEDDING_CONFIG = {
     },
     transport: [
       {
-        label: "Ola / Uber",
+        label: "Taxi Services",
         description:
-          "Both apps operate well in Bengaluru. Allow approximately 2 hours for the journey (depending on traffic), " +
-          "with fares typically ranging between ₹2,000–₹2,500. As ride availability from Sambrama can be limited, " +
-          "we recommend arranging your return journey in advance."
+          "Ola and Uber operate throughout Bengaluru. We recommend allowing extra travel time, " +
+          "particularly during peak traffic hours."
       },
       {
-        label: "Self-drive",
+        label: "Self-Drive",
         description:
-          "If you're driving, Sambrama has ample on-site parking for up to 250 cars. The Google Maps link " +
-          "will take you directly to the venue entrance."
+          "Ample on-site parking is available at Sambrama. The Google Maps link on this website / " +
+          "QR code on the invite will take you directly to the venue entrance."
       }
     ],
     visa: {

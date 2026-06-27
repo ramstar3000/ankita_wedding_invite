@@ -370,17 +370,23 @@
     }
 
     $("#travel-airport-name").textContent = (t.airport && t.airport.name) || "";
-    $("#travel-airport-address").textContent = (t.airport && t.airport.address) || "";
-    $("#travel-airport-distance").textContent = (t.airport && t.airport.distance) || "";
+    $("#travel-airport-note").textContent = (t.airport && t.airport.note) || "";
     $("#travel-station-name").textContent = (t.station && t.station.name) || "";
-    $("#travel-station-address").textContent = (t.station && t.station.address) || "";
-    $("#travel-station-distance").textContent = (t.station && t.station.distance) || "";
+    $("#travel-station-note").textContent = (t.station && t.station.note) || "";
+
+    const busBlock = $("#travel-bus-block");
+    if (t.busStation && t.busStation.name) {
+      $("#travel-bus-name").textContent = t.busStation.name || "";
+      $("#travel-bus-note").textContent = t.busStation.note || "";
+      busBlock.hidden = false;
+    } else {
+      busBlock.hidden = true;
+    }
 
     const metroBlock = $("#travel-metro-block");
     if (t.metro && t.metro.name) {
       $("#travel-metro-name").textContent = t.metro.name || "";
-      $("#travel-metro-address").textContent = t.metro.address || "";
-      $("#travel-metro-distance").textContent = t.metro.distance || "";
+      $("#travel-metro-note").textContent = t.metro.note || "";
       metroBlock.hidden = false;
     } else {
       metroBlock.hidden = true;
