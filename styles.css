@@ -606,7 +606,7 @@ p { margin: 8px 0 16px; }
 .travel-venue-address {
   font-family: var(--sans);
   font-weight: 500;
-  color: var(--pink);
+  color: var(--accent-dark);
   font-size: 1rem;
   line-height: 1.4;
   margin: 0;
