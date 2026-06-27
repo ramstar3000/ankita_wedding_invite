@@ -189,7 +189,12 @@ p { margin: 8px 0 16px; }
   margin-top: 20px;
   color: var(--ink-soft);
   font-size: 0.9rem;
-  line-height: 1.9;
+  line-height: 1.7;
+}
+.cover-footnote-label { display: block; }
+.cover-footnote-links {
+  display: block;
+  margin-top: 2px;
 }
 .dot-sep { margin: 0 6px; color: var(--border); }
 
