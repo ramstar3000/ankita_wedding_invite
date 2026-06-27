@@ -352,6 +352,12 @@
   function renderTravel() {
     const t = cfg.travel || {};
 
+    // Venue name + full address, shown above the map button.
+    $("#travel-venue-name").textContent =
+      t.venueName || (cfg.venue && cfg.venue.name) || "";
+    $("#travel-venue-address").textContent =
+      t.venueAddress || (cfg.venue && cfg.venue.address) || "";
+
     // Map link to the venue (falls back to venue.mapUrl).
     const mapLink = $("#travel-map-link");
     const mapUrl = t.mapUrl || (cfg.venue && cfg.venue.mapUrl) || "";
@@ -364,9 +370,22 @@
     }
 
     $("#travel-airport-name").textContent = (t.airport && t.airport.name) || "";
-    $("#travel-airport-note").textContent = (t.airport && t.airport.note) || "";
+    $("#travel-airport-address").textContent = (t.airport && t.airport.address) || "";
+    $("#travel-airport-distance").textContent = (t.airport && t.airport.distance) || "";
     $("#travel-station-name").textContent = (t.station && t.station.name) || "";
-    $("#travel-station-note").textContent = (t.station && t.station.note) || "";
+    $("#travel-station-address").textContent = (t.station && t.station.address) || "";
+    $("#travel-station-distance").textContent = (t.station && t.station.distance) || "";
+
+    const metroBlock = $("#travel-metro-block");
+    if (t.metro && t.metro.name) {
+      $("#travel-metro-name").textContent = t.metro.name || "";
+      $("#travel-metro-address").textContent = t.metro.address || "";
+      $("#travel-metro-distance").textContent = t.metro.distance || "";
+      metroBlock.hidden = false;
+    } else {
+      metroBlock.hidden = true;
+    }
+
     $("#travel-arrival").textContent = (t.arrival && t.arrival.suggested) || "";
     $("#travel-departure").textContent = (t.arrival && t.arrival.departure) || "";
 

@@ -88,16 +88,26 @@ window.WEDDING_CONFIG = {
   },
 
   travel: {
+    // Venue name + full address shown above the map button.
+    venueName: "Sambrama by Swanlines",
+    venueAddress: "No 107 & 108, Thittahalli Rd, Kaggalipura, Bengaluru, Karnataka 560082, India",
     // Map link to the venue, shown prominently at the top of the page.
-    mapLabel: "Open Sambrama by Swanlines in Google Maps",
+    mapLabel: "Open in Google Maps",
     mapUrl: "https://www.google.com/maps/search/?api=1&query=Sambrama+by+Swanlines+Kaggalipura+Bengaluru",
     airport: {
-      name: "Kempegowda International Airport (BLR), Bengaluru",
-      note: "About 50 km / 90 minutes by road from Sambrama — south of the city, on Kanakapura Road."
+      name: "Kempegowda International Airport (BLR)",
+      address: "KIAL Road, Devanahalli, Bengaluru, Karnataka 560300",
+      distance: "About 65 km from Sambrama — roughly 2 to 2.5 hours by road, as the airport is north of the city and the venue lies to the south on Kanakapura Road."
     },
     station: {
-      name: "KSR Bengaluru City Junction (SBC), also known as Krantivira Sangolli Rayanna",
-      note: "Bengaluru's main railhead, around 35 km / 1–1.5 hours by road from Sambrama depending on traffic."
+      name: "KSR Bengaluru City Junction (SBC) — Krantivira Sangolli Rayanna",
+      address: "Gubbi Thotadappa Road, Majestic, Bengaluru, Karnataka 560023",
+      distance: "Bengaluru's main railway station, about 35 km from Sambrama — roughly 1 to 1.5 hours by road depending on traffic."
+    },
+    metro: {
+      name: "Namma Metro — Green Line",
+      address: "Nearest terminus: Silk Institute (Anjanapura), Kanakapura Road, Bengaluru",
+      distance: "The Green Line runs south down Kanakapura Road to its terminus at Silk Institute (Anjanapura) — a quick, traffic-free way to cross the city. From there it's about 20 km (roughly 40 minutes) by cab or auto to Sambrama for the final stretch."
     },
     arrival: {
       suggested: "We recommend arriving in Bengaluru by Wednesday, 18 November, so you have plenty of time to settle in before the Haldi ceremony on Thursday morning.",
@@ -110,13 +120,6 @@ window.WEDDING_CONFIG = {
           "Both apps operate well in Bengaluru. Allow approximately 2 hours for the journey (depending on traffic), " +
           "with fares typically ranging between ₹2,000–₹2,500. As ride availability from Sambrama can be limited, " +
           "we recommend arranging your return journey in advance."
-      },
-      {
-        label: "Metro",
-        description:
-          "Namma Metro's Green Line runs south down Kanakapura Road to its terminus at Silk Institute (Anjanapura). " +
-          "It's a quick, traffic-free way to cross the city; from Silk Institute it's roughly 20 km (about 40 minutes) " +
-          "by cab or auto to Sambrama for the final stretch."
       },
       {
         label: "Self-drive",
@@ -139,7 +142,7 @@ window.WEDDING_CONFIG = {
       items: [
         { label: "Time zone", value: "India Standard Time (IST), UTC +5:30 — no daylight saving. That's 5½ hours ahead of the UK in November." },
         { label: "Weather", value: "November in Bengaluru is pleasant — warm days around 27°C and cooler evenings near 16–18°C. Bring light layers for the evenings." },
-        { label: "Currency", value: "Indian Rupee (₹ / INR). Cards are widely accepted in the city; carry some cash for smaller vendors and tips. ATMs are easy to find." },
+        { label: "Currency", value: "Indian Rupee (₹ / INR). Cards are widely accepted in the city; carry some cash for smaller vendors and tips. ATMs are easy to find. Contactless and phone payments (Apple Pay, Google Pay and tap-to-pay cards) work in most shops, restaurants and cabs, so you can usually pay straight from your phone." },
         { label: "Plugs & power", value: "230V, 50Hz with Type C, D and M sockets. A universal travel adapter is the easiest option." },
         { label: "Mobile & data", value: "Local prepaid SIMs (Airtel, Jio) and eSIMs are cheap and reliable; international roaming and hotel Wi-Fi also work well." }
       ],

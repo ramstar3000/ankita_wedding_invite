@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:wght@500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./styles.css?v=20260626h" />
+  <link rel="stylesheet" href="./styles.css?v=20260626i" />
 </head>
 <body>
   <header class="brand-band" id="brand-band" hidden>
@@ -67,7 +67,7 @@
         </div>
 
         <p class="cover-footnote">
-          Already RSVP'd? <a id="cover-gift-link" class="link" href="#gift">See the gift register</a>
+          Already RSVP'd? <a id="cover-gift-link" class="link" href="#gift">Gifts/Blessings</a>
           <span class="dot-sep">·</span>
           <a id="cover-travel-link" class="link" href="#travel">Travel &amp; arrival</a>
         </p>
@@ -151,17 +151,17 @@
 
       <label class="field">
         <span>Allergies or additional food needs (Optional)</span>
-        <textarea id="notes-allergies" rows="3" placeholder="e.g. nut allergy for Priya, Jain meals preferred…"></textarea>
+        <textarea id="notes-allergies" rows="3"></textarea>
       </label>
 
       <label class="field">
         <span>Email (so we can reach you if needed)</span>
-        <input id="notes-email" type="email" autocomplete="email" placeholder="you@example.com" />
+        <input id="notes-email" type="email" autocomplete="email" />
       </label>
 
       <label class="field">
         <span>Phone (Optional, for last-minute updates)</span>
-        <input id="notes-phone" type="tel" autocomplete="tel" placeholder="+44 7… / +91 9…" />
+        <input id="notes-phone" type="tel" autocomplete="tel" />
       </label>
 
       <div class="btn-row">
@@ -188,7 +188,7 @@
       </div>
 
       <p>
-        <a id="thanks-gift-link" href="#gift" class="link">See the gift register</a>
+        <a id="thanks-gift-link" href="#gift" class="link">Gifts/Blessings</a>
         <span class="dot-sep">·</span>
         <a id="thanks-travel-link" href="#travel" class="link">Travel &amp; arrival</a>
       </p>
@@ -244,16 +244,33 @@
     <section data-step="travel" class="step" hidden>
       <h2>Travel &amp; arrival</h2>
 
+      <div class="travel-venue">
+        <p class="travel-venue-name" id="travel-venue-name"></p>
+        <p class="travel-venue-address" id="travel-venue-address"></p>
+      </div>
+
       <a id="travel-map-link" class="btn btn-outline travel-map-btn" target="_blank" rel="noopener" hidden></a>
 
       <div class="info-block">
         <h3 class="info-heading">Travel</h3>
+
         <p class="travel-sub">Nearest airport</p>
         <p id="travel-airport-name"></p>
-        <p class="muted small" id="travel-airport-note"></p>
+        <p class="muted small" id="travel-airport-address"></p>
+        <p class="muted small" id="travel-airport-distance"></p>
+
         <p class="travel-sub">Nearest train station</p>
         <p id="travel-station-name"></p>
-        <p class="muted small" id="travel-station-note"></p>
+        <p class="muted small" id="travel-station-address"></p>
+        <p class="muted small" id="travel-station-distance"></p>
+
+        <div id="travel-metro-block">
+          <p class="travel-sub">Metro</p>
+          <p id="travel-metro-name"></p>
+          <p class="muted small" id="travel-metro-address"></p>
+          <p class="muted small" id="travel-metro-distance"></p>
+        </div>
+
         <dl id="travel-transport" class="info-dl"></dl>
       </div>
 
@@ -287,7 +304,7 @@
       <div id="gift-links" class="btn-row stack"></div>
 
       <details class="gift-alt" id="gift-alt">
-        <summary class="gift-alt-summary">Contribute to wedding gift fund</summary>
+        <summary class="gift-alt-summary">Ankita &amp; Shyam's Gift Registry</summary>
         <div class="gift-alt-body">
           <pre id="gift-bank" class="bank-block"></pre>
         </div>
@@ -317,10 +334,10 @@
     </div>
   </div>
 
-  <script src="./js/config.js?v=20260626h"></script>
-  <script src="./js/state.js?v=20260626h"></script>
-  <script src="./js/submit.js?v=20260626h"></script>
-  <script src="./js/main.js?v=20260626h"></script>
-  <script src="./js/router.js?v=20260626h"></script>
+  <script src="./js/config.js?v=20260626i"></script>
+  <script src="./js/state.js?v=20260626i"></script>
+  <script src="./js/submit.js?v=20260626i"></script>
+  <script src="./js/main.js?v=20260626i"></script>
+  <script src="./js/router.js?v=20260626i"></script>
 </body>
 </html>
