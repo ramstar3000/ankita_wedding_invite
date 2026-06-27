@@ -593,21 +593,21 @@ p { margin: 8px 0 16px; }
   margin: 0;
 }
 .travel-venue {
-  text-align: center;
+  text-align: left;
   margin: 0 0 14px;
 }
 .travel-venue-name {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-weight: 700;
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   color: var(--pink);
   margin: 0 0 4px;
 }
 .travel-venue-address {
-  font-family: var(--serif);
-  font-weight: 600;
+  font-family: var(--sans);
+  font-weight: 500;
   color: var(--pink);
-  font-size: 1.1rem;
+  font-size: 1rem;
   line-height: 1.4;
   margin: 0;
 }
