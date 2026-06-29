@@ -1170,6 +1170,8 @@
       }
     });
 
+    $("#rsvp-back").addEventListener("click", () => window.ROUTER.go("cover"));
+
     $("#event-back").addEventListener("click", () => {
       if (state.currentEventIndex === 0) {
         window.ROUTER.go("rsvp");
