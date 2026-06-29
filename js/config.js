@@ -6,7 +6,7 @@ window.WEDDING_CONFIG = {
     name1: "Ankita",
     name2: "Shyam"
   },
-  date: "Thursday 19 – Friday 20 November 2026",
+  date: "19 – 20 November 2026, Thursday – Friday",
   rsvpBy: "Kindly RSVP by 8 November 2026",
   venue: {
     name: "Sambrama by Swanlines",
@@ -39,7 +39,7 @@ window.WEDDING_CONFIG = {
     {
       id: "haldi",
       name: "Nischayatartham & Haldi",
-      date: "Thu 19 Nov",
+      date: "19 November 2026, Thursday",
       time: "8:00 am – 1:30 pm",
       startISO: "2026-11-19T08:00:00+05:30",
       endISO:   "2026-11-19T13:30:00+05:30",
@@ -50,7 +50,7 @@ window.WEDDING_CONFIG = {
     {
       id: "reception",
       name: "Baraat & Reception",
-      date: "Thu 19 Nov",
+      date: "19 November 2026, Thursday",
       time: "5:00 pm onwards",
       startISO: "2026-11-19T17:00:00+05:30",
       endISO:   "2026-11-19T23:00:00+05:30",
@@ -61,7 +61,7 @@ window.WEDDING_CONFIG = {
     {
       id: "wedding",
       name: "Wedding ceremony",
-      date: "Fri 20 Nov",
+      date: "20 November 2026, Friday",
       time: "5:00 am onwards",
       startISO: "2026-11-20T05:00:00+05:30",
       endISO:   "2026-11-20T12:00:00+05:30",
