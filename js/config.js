@@ -7,7 +7,7 @@ window.WEDDING_CONFIG = {
     name2: "Shyam"
   },
   date: "19 – 20 November 2026, Thursday – Friday",
-  rsvpBy: "Kindly RSVP by 8 November 2026",
+  rsvpBy: "Kindly RSVP by 10 October 2026",
   venue: {
     name: "Sambrama by Swanlines",
     address: "No 107 & 108, Thittahalli Rd, Kaggalipura, Bengaluru, Karnataka 560082",
