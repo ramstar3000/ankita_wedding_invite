@@ -26,7 +26,10 @@ window.WEDDING_CONFIG = {
     "./assets/invite-1.jpg?v=20260629",
     "./assets/invite-2.jpg?v=20260629",
     "./assets/invite-3.jpg?v=20260629",
-    "./assets/invite-4.jpg?v=20260629"
+    "./assets/invite-4.jpg?v=20260629",
+    "./assets/invite-5.jpg?v=20260910",
+    "./assets/invite-6.jpg?v=20260910",
+    "./assets/invite-7.jpg?v=20260910"
   ],
 
   // Pre-generated QR code SVG pointing at venue.mapUrl. Generate once with e.g.
