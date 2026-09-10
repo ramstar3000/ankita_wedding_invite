@@ -995,6 +995,33 @@ p { margin: 8px 0 16px; }
 }
 .invite-viewer-close:hover { color: var(--ink); }
 
+.invite-viewer-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 6px 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.invite-tab {
+  flex: 1 1 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+  padding: 8px 10px 10px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+.invite-tab:hover { color: var(--ink); }
+.invite-tab.is-active {
+  color: var(--accent-dark);
+  border-bottom-color: var(--gold);
+  font-weight: 600;
+}
+
 .invite-viewer-track {
   flex: 1 1 auto;
   display: flex;

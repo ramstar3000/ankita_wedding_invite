@@ -56,22 +56,67 @@
     return true;
   }
 
-  // Invitation images in display order (filters out any blanks).
-  function invitationImageList() {
-    const list = Array.isArray(cfg.invitationImages) ? cfg.invitationImages.slice() : [];
-    return list.filter(Boolean);
+  // Invitation images grouped by side: [{ label, images }]. Falls back to a
+  // single unlabelled side built from the legacy flat invitationImages array.
+  function invitationSideList() {
+    const sides = Array.isArray(cfg.invitationSides) ? cfg.invitationSides : null;
+    if (sides) {
+      return sides
+        .map((s) => ({
+          label: s && s.label ? String(s.label) : "",
+          images: (Array.isArray(s && s.images) ? s.images : []).filter(Boolean)
+        }))
+        .filter((s) => s.images.length);
+    }
+    const flat = (Array.isArray(cfg.invitationImages) ? cfg.invitationImages : []).filter(Boolean);
+    return flat.length ? [{ label: "", images: flat }] : [];
   }
 
   // ---- Invitation viewer (slides up from the bottom) ---------------------
 
+  let inviteSideIndex = 0;
   let inviteIndex = 0;
   let inviteBuilt = false;
 
+  function activeSideImages() {
+    const sides = invitationSideList();
+    const side = sides[inviteSideIndex] || sides[0];
+    return side ? side.images : [];
+  }
+
   function buildInvitationViewer() {
     if (inviteBuilt) return;
-    const imgs = invitationImageList();
-    if (!imgs.length) return;
+    const sides = invitationSideList();
+    if (!sides.length) return;
 
+    // Tabs — one per side, shown only when there's more than one side.
+    const tabs = $("#invite-viewer-tabs");
+    if (tabs) {
+      tabs.innerHTML = "";
+      if (sides.length > 1) {
+        sides.forEach((side, i) => {
+          const tab = document.createElement("button");
+          tab.type = "button";
+          tab.className = "invite-tab";
+          tab.setAttribute("role", "tab");
+          tab.textContent = side.label || ("Part " + (i + 1));
+          tab.addEventListener("click", () => selectInviteSide(i));
+          tabs.appendChild(tab);
+        });
+        tabs.hidden = false;
+      } else {
+        tabs.hidden = true;
+      }
+    }
+
+    inviteSideIndex = 0;
+    buildSideTrack();
+    inviteBuilt = true;
+  }
+
+  // Build the carousel slides + dots for the currently active side.
+  function buildSideTrack() {
+    const imgs = activeSideImages();
     const track = $("#invite-viewer-track");
     const dots = $("#invite-viewer-dots");
     track.innerHTML = "";
@@ -92,13 +137,24 @@
       dots.appendChild(dot);
     });
 
+    $$(".invite-tab").forEach((t, ti) => {
+      const on = ti === inviteSideIndex;
+      t.classList.toggle("is-active", on);
+      t.setAttribute("aria-selected", on ? "true" : "false");
+    });
+
     $("#invite-viewer-nav").hidden = imgs.length < 2;
-    inviteBuilt = true;
     goToInvite(0);
   }
 
+  function selectInviteSide(i) {
+    const sides = invitationSideList();
+    inviteSideIndex = Math.max(0, Math.min(i, sides.length - 1));
+    buildSideTrack();
+  }
+
   function goToInvite(i) {
-    const imgs = invitationImageList();
+    const imgs = activeSideImages();
     inviteIndex = Math.max(0, Math.min(i, imgs.length - 1));
     const track = $("#invite-viewer-track");
     $$(".invite-slide", track).forEach((s) => {
@@ -156,7 +212,7 @@
     $("#cover-date").textContent = cfg.date;
 
     const invitationLink = $("#cover-invitation-link");
-    invitationLink.hidden = invitationImageList().length === 0;
+    invitationLink.hidden = invitationSideList().length === 0;
 
     const rsvpBy = $("#cover-rsvp-by");
     if (cfg.rsvpBy) { rsvpBy.textContent = cfg.rsvpBy; rsvpBy.hidden = false; }

@@ -18,17 +18,29 @@ window.WEDDING_CONFIG = {
   // (PNG also fine — update the extension). Leave blank to hide the brand band.
   logoSrc: "./assets/logo.png",
 
-  // Invitation card images, shown in display order. When at least one is set,
+  // Invitation card images, grouped by side. When at least one image is set,
   // a 'View invitation' button appears on the cover; tapping it slides a
-  // viewer up from the bottom with the images as a swipeable carousel.
-  // Drop the images in ./assets/ and list them here in the order to show.
-  invitationImages: [
-    "./assets/invite-2.jpg?v=20260629",
-    "./assets/invite-3.jpg?v=20260629",
-    "./assets/invite-4.jpg?v=20260629",
-    "./assets/invite-5.jpg?v=20260910",
-    "./assets/invite-6.jpg?v=20260910",
-    "./assets/invite-7.jpg?v=20260910"
+  // viewer up from the bottom. Each side becomes a tab at the top of the
+  // viewer, with its images as a swipeable carousel underneath. Drop the
+  // images in ./assets/ and list them here in the order to show.
+  // (For a single unlabelled carousel, use one side with an empty label.)
+  invitationSides: [
+    {
+      label: "Bride's side",
+      images: [
+        "./assets/invite-2.jpg?v=20260629",
+        "./assets/invite-3.jpg?v=20260629",
+        "./assets/invite-4.jpg?v=20260629"
+      ]
+    },
+    {
+      label: "Groom's side",
+      images: [
+        "./assets/invite-5.jpg?v=20260910",
+        "./assets/invite-6.jpg?v=20260910",
+        "./assets/invite-7.jpg?v=20260910"
+      ]
+    }
   ],
 
   // Pre-generated QR code SVG pointing at venue.mapUrl. Generate once with e.g.
