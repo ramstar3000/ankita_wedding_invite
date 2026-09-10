@@ -23,7 +23,6 @@ window.WEDDING_CONFIG = {
   // viewer up from the bottom with the images as a swipeable carousel.
   // Drop the images in ./assets/ and list them here in the order to show.
   invitationImages: [
-    "./assets/invite-1.jpg?v=20260629",
     "./assets/invite-2.jpg?v=20260629",
     "./assets/invite-3.jpg?v=20260629",
     "./assets/invite-4.jpg?v=20260629",
